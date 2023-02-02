@@ -1,0 +1,102 @@
+# Stage 2023
+
+## links
+
+<https://dept-info.labri.fr/~denis/Enseignement/Sujet_PFE_2023_uintr.html>
+<https://inria.webex.com/meet/alexandre.denis>
+<https://doc-si.inria.fr/>
+<https://password.inria.fr/>
+<https://mattermost.inria.fr/tadaam/channels/town-square>
+
+<https://github.com/intel/uintr-compiler-guide/blob/uintr-gcc-11.1/UINTR-compiler-guide.pdf>
+<https://github.com/intel/uintr-ipc-bench/tree/master/source/uintrfd>
+<https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-bi.c>
+<https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-uni.c>
+<https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined>
+<https://github.com/intel/uintr-linux-kernel/tree/uintr-next/tools/uintr/manpages>
+
+## TODO
+
+-- le serveur Gitlab Inria : gitlab.inria.fr
+Il faudra que tu demandes à rejoindre le projet
+<https://gitlab.inria.fr/pm2/pm2>
+
+-- demander l'accée aux daltones à brice (présisé que je suis le stagiaire de alexandre DENIS)
+
+## notes
+
+`IPC` : Inter-Process Communication.
+
+`SENDUIPI` : SEND User Inner Process Interruption.
+
+`uintr` for User INTeRuption.
+
+> UINTR Connection management.
+
+`UPID` : User Posted Interrupt Descriptor.
+![Alt text](UPID_Format.png)
+
+`UITT` : User Interrupt Target Table. (own two fields **UPID pointer** and **vector information**).
+
+`UITT index` : index that refer to an `UITT` ?
+
+`flags: int` an interruption identifier.
+`handler_func: ??` the function handler?.
+`uintr_fd: int` the file descriptor for the ipc.
+`vector: ??`
+`uipi_handle: int?`
+
+`UIF` : User-Interrupt Flag
+
+`senduipi <uipi_handle>` – send a user IPI to a target task based on the UITT index.
+`uiret` : Return from a User Interrupt handler.
+`clui` : Mask user interrupts by clearing UIF (User Interrupt Flag).
+`stui` : Unmask user interrupts by setting UIF.
+`testui` : Test current value of UIF.
+
+### Receiver APIs
+
+Allow to receive interruptions.
+
+```c
+int uintr_register_handler(handler_func, flags);
+int uintr_unregister_handler(flags);
+```
+
+Link file descriptor to interruption flag.
+
+```c
+// Create an fd representing the vector - priority ??
+uintr_fd = uintr_create_fd(vector, flags); // NOTE: type ??
+```
+
+I case we interact with the kernel.
+
+```c
+//Post user interruption from the kernel.
+int uintr_notify(int uintr_fd);
+```
+
+### Sender APIs
+
+// TODO: test if the flags is the same then receiver.
+
+// use the file descriptor link to an receiver to send an interruption.
+
+```c
+// Receive FD via inheritance or UNIX domain sockets
+uipi_handle = uintr_register_sender(uintr_fd, flags);
+int uintr_unregister_sender(uintr_fd, flags);
+```
+
+Send an interruption
+
+```c
+void _senduipi(uipi_handle); // uipi_handle is UITT index.
+```
+
+### Env
+
+> Kernel: Linux v5.14.0 + User IPI patches.
+
+`-muintr` Compiler flag to allow `uintr`.
