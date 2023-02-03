@@ -2,11 +2,15 @@
 
 ## links
 
+Global :
+
 <https://dept-info.labri.fr/~denis/Enseignement/Sujet_PFE_2023_uintr.html>
 <https://inria.webex.com/meet/alexandre.denis>
 <https://doc-si.inria.fr/>
 <https://password.inria.fr/>
 <https://mattermost.inria.fr/tadaam/channels/town-square>
+
+User interruption :
 
 <https://github.com/intel/uintr-compiler-guide/blob/uintr-gcc-11.1/UINTR-compiler-guide.pdf>
 <https://github.com/intel/uintr-ipc-bench/tree/master/source/uintrfd>
@@ -14,6 +18,9 @@
 <https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-uni.c>
 <https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined>
 <https://github.com/intel/uintr-linux-kernel/tree/uintr-next/tools/uintr/manpages>
+
+BXI :
+
 
 ## TODO
 
@@ -23,7 +30,7 @@ Il faudra que tu demandes à rejoindre le projet
 
 -- demander l'accée aux daltones à brice (présisé que je suis le stagiaire de alexandre DENIS)
 
-## notes
+## notes User interruption
 
 `IPC` : Inter-Process Communication.
 
@@ -100,3 +107,17 @@ void _senduipi(uipi_handle); // uipi_handle is UITT index.
 > Kernel: Linux v5.14.0 + User IPI patches.
 
 `-muintr` Compiler flag to allow `uintr`.
+
+## notes BXI
+
+`BXI` : Bull eXascale Interconnect
+
+Bull, Atos..
+
+- base on `Portals 4` to do message passing.
+- support `MPI` (Message Passing Interface) and `PGAS` (Partitioned Global Address Space).
+  - send/receive
+  - `RDMA` (Remote `DMA`) (Direct Memory Access).
+- `SHMEM` : is a shared memory library from Cray.
+- `NIC` : Network Interface Card (a network card xD).
+- `LME` List Management Engine.
