@@ -115,9 +115,31 @@ void _senduipi(uipi_handle); // uipi_handle is UITT index.
 Bull, Atos..
 
 - base on `Portals 4` to do message passing.
-- support `MPI` (Message Passing Interface) and `PGAS` (Partitioned Global Address Space).
+- [`Portals 4`](https://github.com/Portals4/portals4)
+- support `MPI` (Message Passing Interface) and `PGAS` (Partitioned Global Address Space) new parallel programming languages.
   - send/receive
   - `RDMA` (Remote `DMA`) (Direct Memory Access).
-- `SHMEM` : is a shared memory library from Cray.
+- `SHMEM` : is a shared memory library from Cray (communication lib).
 - `NIC` : Network Interface Card (a network card xD).
 - `LME` List Management Engine.
+
+`ASIC switch` (or `BXI switch`)
+`ASIC NCI` (or `BXI NCI`)
+
+Transmit Logic (TX).
+Receive logic (RX).
+
+`ASIP` (Application Specific Instruction set Processor).
+
+<https://en.wikipedia.org/wiki/SerDes>
+
+Put, Get and ME_Append.
+
+## NewMadeleine
+
+`NewMadeleine` is an rewrite of `Madeleine`.
+Is a message communication library. `NewMadeleine` send message is mixed order.
+
+`Mad-MPI` is an `NewMadeleine` *API adapter* for MPI.
+
+`pioman` a framework used by MPI implementations to transparently made the communication progression asynchronous.
