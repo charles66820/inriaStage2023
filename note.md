@@ -27,6 +27,8 @@ NewMadeleine :
 <https://pm2.gitlabpages.inria.fr/pm2/nmad/doc/>
 <https://theses.hal.science/tel-00469488>
 
+`pdftotext these_trahay.pdf` pour avoir le text avec les accents.
+
 Examples :
 
 <https://hal.inria.fr/hal-01587584>
