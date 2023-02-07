@@ -153,4 +153,4 @@ Is a message communication library. `NewMadeleine` send message is mixed order.
 
 `Mad-MPI` is an `NewMadeleine` *API adapter* for MPI.
 
-`pioman` a framework used by MPI implementations to transparently made the communication progression asynchronous.
+`pioman` a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
