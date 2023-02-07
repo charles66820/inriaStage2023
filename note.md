@@ -21,6 +21,15 @@ User interruption :
 
 BXI :
 
+NewMadeleine :
+
+<https://gitlab.inria.fr/pm2/pm2>
+<https://pm2.gitlabpages.inria.fr/pm2/nmad/doc/>
+<https://theses.hal.science/tel-00469488>
+
+Examples :
+
+<https://hal.inria.fr/hal-01587584>
 
 ## TODO
 
