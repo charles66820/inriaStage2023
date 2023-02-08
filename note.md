@@ -33,13 +33,11 @@ Examples :
 
 <https://hal.inria.fr/hal-01587584>
 
+## ssh
+
+`ssh cgoedefr@dalton.bordeaux.inria.fr`
+
 ## TODO
-
--- le serveur Gitlab Inria : gitlab.inria.fr
-Il faudra que tu demandes à rejoindre le projet
-<https://gitlab.inria.fr/pm2/pm2>
-
--- demander l'accée aux daltones à brice (présisé que je suis le stagiaire de alexandre DENIS)
 
 ## notes User interruption
 
@@ -153,4 +151,22 @@ Is a message communication library. `NewMadeleine` send message is mixed order.
 
 `Mad-MPI` is an `NewMadeleine` *API adapter* for MPI.
 
-`pioman` a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
+`PIOMan` (Process I/O Manager) a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
+
+`Marcel` qui est un ordonnancer de threads au niveau utilisateur sur des VP (Virtual Processor) qui sont dans l'espace utilisateur et qui sont bind à un core physique.
+
+## road map
+
+![Alt text](img/rn_image_picker_lib_temp_f484c77a-c389-445e-8c7b-bcc0fc9adee4.jpg)
+
+### 1. Voire le fonctionnement interne de `NewMadeleine`, les events, les drivers…
+
+### 2. Testes avec le driver `shm`
+
+- Avec des signaux en premier.
+- Avec les interruptions en espace utilisateur.
+- Faire attention à ce qui est possible de faire ou non dans les handlers. (exec flow).
+
+### 3. Au niveau du driver `tcp` (SIGIO)
+
+### 4. Portals 4
