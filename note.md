@@ -6,6 +6,8 @@ Global :
 
 <https://dept-info.labri.fr/~denis/Enseignement/Sujet_PFE_2023_uintr.html>
 <https://inria.webex.com/meet/alexandre.denis>
+<https://inria.webex.com/meet/charles.goedefroit>
+> Préférences > Audio et vidéo > PIN de l'organisateur
 <https://doc-si.inria.fr/>
 <https://password.inria.fr/>
 <https://mattermost.inria.fr/tadaam/channels/town-square>
@@ -33,9 +35,14 @@ Examples :
 
 <https://hal.inria.fr/hal-01587584>
 
+## salle
+
+Pour réservé une salle il faut ajouté un événement dans le calandrié Zimbra et faire `envoyer` (et non enregistré).
+
 ## ssh
 
 `ssh cgoedefr@dalton.bordeaux.inria.fr`
+dalton billy carte BXI and infiniband.
 
 ## TODO
 
