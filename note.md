@@ -37,6 +37,7 @@ Examples :
 
 Dalton :
 <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
+<https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/dalton>
 
 ## salle
 
