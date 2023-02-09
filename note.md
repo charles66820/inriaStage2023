@@ -35,16 +35,23 @@ Examples :
 
 <https://hal.inria.fr/hal-01587584>
 
+Dalton :
+<https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
+
 ## salle
 
 Pour réservé une salle il faut ajouté un événement dans le calandrié Zimbra et faire `envoyer` (et non enregistré).
 
 ## ssh
 
+`ssh acces.bordeaux.inria.fr`
+
 `ssh cgoedefr@dalton.bordeaux.inria.fr`
 dalton billy carte BXI and infiniband.
 
 ## TODO
+
+Build PM2
 
 ## notes User interruption
 
