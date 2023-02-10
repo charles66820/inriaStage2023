@@ -15,7 +15,11 @@
 
 ## Code
 
-The session (`nm_session.c`) initialise the strategy and the driver.
+`nmad/drivers` all driver folders.
+`nmad/examples` ??.
+`nmad/strategies` all strategies folders.
+
+The session (`nmad/interfaces/session/src/nm_session.c`) initialise the strategy and the driver.
 
 > iovec
 > nm_data iterator

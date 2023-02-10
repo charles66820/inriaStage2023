@@ -54,9 +54,8 @@ dalton billy carte BXI and infiniband.
 
 Build PM2
 
-- créé ma branche git
 - trouver les system d'handler
-- trouver un test qui me convien
+- trouver un test qui me convient
 - codé un test perso ?
 - ajouter un fichier `nm_minidriver_shmSig`
 - ...
