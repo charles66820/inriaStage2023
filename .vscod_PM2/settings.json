@@ -1,0 +1,23 @@
+{
+  "files.associations": {
+    "nm_public.h": "c",
+    "nm_session_interface.h": "c",
+    "nm_private.h": "c",
+    "nm_errno.h": "c",
+    "nm_types.h": "c",
+    "nm_data.h": "c",
+    "puk.h": "c",
+    "puk-mem.h": "c",
+    "puk-base.h": "c",
+    "puk-checksum.h": "c"
+  },
+  "C_Cpp.errorSquiggles": "enabled",
+  "cSpell.words": [
+    "hashcode",
+    "ibverbs",
+    "nmad",
+    "NMAD",
+    "padico",
+    "PADICO"
+  ]
+}

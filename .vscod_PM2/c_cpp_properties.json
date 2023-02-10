@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/.vscode/genInclude",
+                "${workspaceFolder}/.vscode/genInclude/PadicoShm",
+                "${workspaceFolder}/.vscode/genInclude/PadicoTopology",
+                "${workspaceFolder}/.vscode/genInclude/PadicoPSP",
+                "${workspaceFolder}/.vscode/genInclude/PadicoCore",
+                "${workspaceFolder}/.vscode/genInclude/**",
+                "${workspaceFolder}/nmad/include",
+                "${workspaceFolder}/Puk/siphash"
+            ],
+            "defines": [
+                "NMAD"
+            ],
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}
