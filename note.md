@@ -4,40 +4,40 @@
 
 Global :
 
-<https://dept-info.labri.fr/~denis/Enseignement/Sujet_PFE_2023_uintr.html>
-<https://inria.webex.com/meet/alexandre.denis>
-<https://inria.webex.com/meet/charles.goedefroit>
-> Préférences > Audio et vidéo > PIN de l'organisateur
-<https://doc-si.inria.fr/>
-<https://password.inria.fr/>
-<https://mattermost.inria.fr/tadaam/channels/town-square>
+- <https://dept-info.labri.fr/~denis/Enseignement/Sujet_PFE_2023_uintr.html>
+- <https://inria.webex.com/meet/alexandre.denis>
+- <https://inria.webex.com/meet/charles.goedefroit>
+  > Préférences > Audio et vidéo > PIN de l'organisateur
+- <https://doc-si.inria.fr/>
+- <https://password.inria.fr/>
+- <https://mattermost.inria.fr/tadaam/channels/town-square>
 
 User interruption :
 
-<https://github.com/intel/uintr-compiler-guide/blob/uintr-gcc-11.1/UINTR-compiler-guide.pdf>
-<https://github.com/intel/uintr-ipc-bench/tree/master/source/uintrfd>
-<https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-bi.c>
-<https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-uni.c>
-<https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined>
-<https://github.com/intel/uintr-linux-kernel/tree/uintr-next/tools/uintr/manpages>
+- <https://github.com/intel/uintr-compiler-guide/blob/uintr-gcc-11.1/UINTR-compiler-guide.pdf>
+- <https://github.com/intel/uintr-ipc-bench/tree/master/source/uintrfd>
+- <https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-bi.c>
+- <https://github.com/intel/uintr-ipc-bench/blob/master/source/uintrfd/uintrfd-uni.c>
+- <https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html#combined>
+- <https://github.com/intel/uintr-linux-kernel/tree/uintr-next/tools/uintr/manpages>
 
 BXI :
 
 NewMadeleine :
 
-<https://gitlab.inria.fr/pm2/pm2>
-<https://pm2.gitlabpages.inria.fr/pm2/nmad/doc/>
-<https://theses.hal.science/tel-00469488>
+- <https://gitlab.inria.fr/pm2/pm2>
+- <https://pm2.gitlabpages.inria.fr/pm2/nmad/doc/>
+- <https://theses.hal.science/tel-00469488>
 
-`pdftotext these_trahay.pdf` pour avoir le text avec les accents.
+> `pdftotext these_trahay.pdf` pour avoir le text avec les accents.
 
 Examples :
 
-<https://hal.inria.fr/hal-01587584>
+- <https://hal.inria.fr/hal-01587584>
 
 Dalton :
-<https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
-<https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/dalton>
+- <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
+- <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/dalton>
 
 ## salle
 
@@ -54,7 +54,7 @@ dalton billy carte BXI and infiniband.
 
 Build PM2
 
-- trouver les system d'handler
+- trouver les system d'handler (`nm_rpc_handler`??)
 - trouver un test qui me convient
 - codé un test perso ?
 - ajouter un fichier `nm_minidriver_shmSig`
@@ -175,6 +175,13 @@ Is a message communication library. `NewMadeleine` send message is mixed order.
 `PIOMan` (Process I/O Manager) a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
 
 `Marcel` qui est un ordonnancer de threads au niveau utilisateur sur des VP (Virtual Processor) qui sont dans l'espace utilisateur et qui sont bind à un core physique.
+
+Interfaces :
+
+- SendRecv
+- `MPI` (with `Mad-MPI`). MPI_Isend/MPI_Irecv...
+- `RPC` (Remote Procedure Calls).
+- `RMA` (One-sided). put/get/fence.
 
 ## road map
 
