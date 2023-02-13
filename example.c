@@ -8,8 +8,12 @@ int toto() {
 
 __attribute__((constructor(1))) static void test() {}
 
+typedef int (*myFun)();
+
 int main(int argc, char const *argv[])
 {
-  int oui = 0 ? : 8;
+  myFun fun = toto;
+
+  int oui = fun() ?: 8;
   return oui;
 }
