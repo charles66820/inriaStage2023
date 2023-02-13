@@ -53,12 +53,11 @@ dalton billy carte BXI and infiniband.
 
 ## TODO
 
-Build PM2
-
-- trouver un test qui me convient
-- codé un test perso ?
+- find how to run test `nm_sr_hello`.
+- code a custom test to have one process setup an handler and do infinite loop and second process just wait and send some data. Print all different steps.
+- do some test with signal handler.
 - how to emit event and call the handler
-- ajouter un fichier `nm_minidriver_shmSig`
+- add new file `nm_minidriver_shmSig`
 - ...
 
 ## notes User interruption

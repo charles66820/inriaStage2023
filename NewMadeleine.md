@@ -16,7 +16,8 @@
 ## Code
 
 `nmad/drivers` all driver folders.
-`nmad/examples` ??.
+`nmad/examples` examples of interfaces use.
+`nmad/interfaces` all interfaces folder (implementation and header) (e.g. MPI, RPC, sendrecv...).
 `nmad/strategies` all strategies folders.
 
 The session (`nmad/interfaces/session/src/nm_session.c`) initialise the strategy and the driver and send them to the `p_core` (nm_core.c).
@@ -43,3 +44,9 @@ Session is used in many `NewMadeleine` interfaces.
 | .recv_buf_poll    | 0    | 1   | receive (buffer) ...      |
 | .recv_buf_release | 0    | 1   | receive (buffer) ...      |
 | .recv_cancel      | 1    | 1   | cancel a posted receive   |
+
+Example as example :
+
+- `nmad/examples/sendrecv/nm_sr_hello2.c`
+- `nmad/examples/sendrecv/nm_sr_custom_data.c`
+- `nmad/examples/benchmarks/nm_bench_req_monitor.c`
