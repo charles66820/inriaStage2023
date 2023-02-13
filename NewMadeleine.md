@@ -19,7 +19,9 @@
 `nmad/examples` ??.
 `nmad/strategies` all strategies folders.
 
-The session (`nmad/interfaces/session/src/nm_session.c`) initialise the strategy and the driver.
+The session (`nmad/interfaces/session/src/nm_session.c`) initialise the strategy and the driver and send them to the `p_core` (nm_core.c).
+
+Session is used in many `NewMadeleine` interfaces.
 
 > iovec
 > nm_data iterator
