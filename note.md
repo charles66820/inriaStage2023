@@ -36,12 +36,13 @@ Examples :
 - <https://hal.inria.fr/hal-01587584>
 
 Dalton :
+
 - <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
 - <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/dalton>
 
 ## salle
 
-Pour réservé une salle il faut ajouté un événement dans le calandrié Zimbra et faire `envoyer` (et non enregistré).
+Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbra et faire `envoyer` (et non enregistré).
 
 ## ssh
 
@@ -54,9 +55,9 @@ dalton billy carte BXI and infiniband.
 
 Build PM2
 
-- trouver les system d'handler (`nm_rpc_handler`??)
 - trouver un test qui me convient
 - codé un test perso ?
+- how to emit event and call the handler
 - ajouter un fichier `nm_minidriver_shmSig`
 - ...
 
@@ -178,10 +179,15 @@ Is a message communication library. `NewMadeleine` send message is mixed order.
 
 Interfaces :
 
-- SendRecv
-- `MPI` (with `Mad-MPI`). MPI_Isend/MPI_Irecv...
-- `RPC` (Remote Procedure Calls).
+- sendrecv has monitor (nm_sr_monitor_s).
+- `MPI` depend of sendrecv (sr) and coll (collective).
+- `RPC` (Remote Procedure Calls) depend of sendrecv (sr).
 - `RMA` (One-sided). put/get/fence.
+
+To use an handler with `sendrecv` we use monitor. `nm_sr_request_monitor` for request and `nm_sr_monitor` for any events. (`nm_sendrecv_interface.h`).
+To use an handler with `RPC` we use `nm_rpc_handler` that use `sendrecv` monitor.
+
+To call the handler we ... TODO:
 
 ## road map
 
