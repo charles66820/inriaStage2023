@@ -6,6 +6,42 @@
 ./pm2-build-packages ./madmpi-mini.conf --prefix=$HOME/soft/x86_64
 ```
 
+## run tests
+
+<!-- PM2_ROOT=$HOME/pm2 ./nmad-test.sh tests shm localhost localhost -->
+
+> load env
+
+```bash
+source soft/x86_64/share/madmpi-mini.conf.sh
+```
+
+> 2 process on one node
+
+```bash
+padico-launch -n 2 -DNMAD_DRIVER=shm nm_sr_hello2
+export NMAD_DRIVER=shm; mpirun -n 2 nm_sr_hello2
+```
+
+> 2 process on two nodes
+
+```bash
+padico-launch -n 2 -nodelist billy0,billy1 -DNMAD_DRIVER=shm nm_sr_hello2
+export NMAD_DRIVER=shm; mpirun -n 2 -H billy0,billy1 nm_sr_hello2
+```
+
+<!-- --map-by ppr:1:core hostname -->
+
+## padico vs mpirun
+
+| mpirun                                 | padico                  | description           |
+| -------------------------------------- | ----------------------- | --------------------- |
+| -n \| -np \| -c \| --n \| --np \<nb\>  | -n \| -np \<nb\>        | set number of process |
+| -c                                     | -v                      | verbose               |
+| export NMAD_DRIVER=shm; mpirun \<...\> | -DNMAD_DRIVER=shm       | env var               |
+| -H billy0,billy1                       | -nodelist billy0,billy1 |                       |
+|                                        | -c                      | console ?             |
+
 ## ENV vars
 
 | name          | default value | description         |
