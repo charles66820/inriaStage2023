@@ -27,7 +27,7 @@ export NMAD_DRIVER=shm; mpirun -n 2 nm_sr_hello2
 
 ```bash
 padico-launch -n 2 -nodelist billy0,billy1 -DNMAD_DRIVER=shm nm_sr_hello2
-export NMAD_DRIVER=shm; mpirun -n 2 -H billy0,billy1 nm_sr_hello2
+export NMAD_DRIVER=shm; mpirun -n 2 -host billy0,billy1 nm_sr_hello2
 ```
 
 <!-- --map-by ppr:1:core hostname -->
@@ -39,7 +39,7 @@ export NMAD_DRIVER=shm; mpirun -n 2 -H billy0,billy1 nm_sr_hello2
 | -n \| -np \| -c \| --n \| --np \<nb\>  | -n \| -np \<nb\>        | set number of process |
 | -c                                     | -v                      | verbose               |
 | export NMAD_DRIVER=shm; mpirun \<...\> | -DNMAD_DRIVER=shm       | env var               |
-| -H billy0,billy1                       | -nodelist billy0,billy1 |                       |
+| -host billy0,billy1                    | -nodelist billy0,billy1 |                       |
 |                                        | -c                      | console ?             |
 
 ## ENV vars
