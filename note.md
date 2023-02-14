@@ -53,7 +53,7 @@ dalton billy carte BXI and infiniband.
 
 ## TODO
 
-- find how to run test `nm_sr_hello`.
+- find how to run test `nm_sr_hello` on 2 nodes.
 - code a custom test to have one process setup an handler and do infinite loop and second process just wait and send some data. Print all different steps.
 - do some test with signal handler.
 - how to emit event and call the handler

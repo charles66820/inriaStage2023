@@ -4,6 +4,10 @@
 
 ```bash
 ./pm2-build-packages ./madmpi-mini.conf --prefix=$HOME/soft/x86_64
+# or
+scripts/pm2-build-packages scripts/madmpi-mini.conf --prefix=$HOME/soft/x86_64
+# or
+pm2/scripts/pm2-build-packages pm2/scripts/madmpi-mini.conf --prefix=$HOME/soft/x86_64
 ```
 
 ## run tests
@@ -13,7 +17,7 @@
 > load env
 
 ```bash
-source soft/x86_64/share/madmpi-mini.conf.sh
+source $HOME/soft/x86_64/share/madmpi-mini.conf.sh
 ```
 
 > 2 process on one node
