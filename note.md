@@ -67,7 +67,7 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 - `uintr` for User INTeRuption.
   > UINTR Connection management.
 - `UPID` : User Posted Interrupt Descriptor.
-  ![Alt text](UPID_Format.png)
+  ![Alt text](img/UPID_Format.png)
 - `UITT` : User Interrupt Target Table. (own two fields **UPID pointer** and **vector information**).
 - `UITT index` : index that refer to an `UITT` ?
 - `flags: int` an interruption identifier.
