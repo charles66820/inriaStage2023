@@ -49,7 +49,7 @@ Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbr
 `ssh acces.bordeaux.inria.fr`
 
 `ssh cgoedefr@dalton.bordeaux.inria.fr`
-dalton billy carte BXI and infiniband.
+dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
@@ -62,34 +62,27 @@ dalton billy carte BXI and infiniband.
 
 ## notes User interruption
 
-`IPC` : Inter-Process Communication.
+- `IPC` : Inter-Process Communication.
+- `SENDUIPI` : SEND User Inner Process Interruption.
+- `uintr` for User INTeRuption.
+  > UINTR Connection management.
+- `UPID` : User Posted Interrupt Descriptor.
+  ![Alt text](UPID_Format.png)
+- `UITT` : User Interrupt Target Table. (own two fields **UPID pointer** and **vector information**).
+- `UITT index` : index that refer to an `UITT` ?
+- `flags: int` an interruption identifier.
+- `handler_func: ??` the function handler?.
+- `uintr_fd: int` the file descriptor for the ipc.
+- `vector: ??`
+- `uipi_handle: int?`
+- `UIF` : User-Interrupt Flag
 
-`SENDUIPI` : SEND User Inner Process Interruption.
-
-`uintr` for User INTeRuption.
-
-> UINTR Connection management.
-
-`UPID` : User Posted Interrupt Descriptor.
-![Alt text](UPID_Format.png)
-
-`UITT` : User Interrupt Target Table. (own two fields **UPID pointer** and **vector information**).
-
-`UITT index` : index that refer to an `UITT` ?
-
-`flags: int` an interruption identifier.
-`handler_func: ??` the function handler?.
-`uintr_fd: int` the file descriptor for the ipc.
-`vector: ??`
-`uipi_handle: int?`
-
-`UIF` : User-Interrupt Flag
-
-`senduipi <uipi_handle>` – send a user IPI to a target task based on the UITT index.
-`uiret` : Return from a User Interrupt handler.
-`clui` : Mask user interrupts by clearing UIF (User Interrupt Flag).
-`stui` : Unmask user interrupts by setting UIF.
-`testui` : Test current value of UIF.
+- `senduipi <uipi_handle>` – send a user IPI to a target task based on the UITT index.
+- `uiret` : Return from a User Interrupt handler.
+- `clui` : Mask user interrupts by clearing UIF (User Interrupt Flag).
+- `stui` : Unmask user interrupts by setting UIF.
+- `testui` : Test current value of UIF.
+![Alt text](img/UINTR_Intrinsics.png)
 
 ### Receiver APIs
 
