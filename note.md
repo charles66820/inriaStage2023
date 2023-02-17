@@ -53,7 +53,7 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- find how to run test `nm_sr_hello` on 2 nodes.
+- create a small shared memory program.
 - code a custom test to have one process setup an handler and do infinite loop and second process just wait and send some data. Print all different steps.
 - do some test with signal handler.
 - how to emit event and call the handler
@@ -187,9 +187,11 @@ To call the handler we ... TODO:
 
 ### 1. Voire le fonctionnement interne de `NewMadeleine`, les events, les drivers…
 
+Création de la branche `nmad-uintr`.
+
 ### 2. Testes avec le driver `shm`
 
-- Avec des signaux en premier.
+- Avec des signaux en premier. `nmad-uintr-shm-sig`
 - Avec les interruptions en espace utilisateur.
 - Faire attention à ce qui est possible de faire ou non dans les handlers. (exec flow).
 
