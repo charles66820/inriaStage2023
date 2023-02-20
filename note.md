@@ -64,10 +64,8 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- create a small shared memory program.
-- do some test with signal handler.
-- how to emit event and call the handler
-- complete `nm_minidriver_shmSig`
+- how to emit event and call the handler (nm_core_status_event)
+- complete `nm_minidriver_sig_shm` (poll required and see poll call) (add set_handler(handler) in driver)
 - lire la specs `portals 4` pour en discuté
 - ...
 
@@ -158,7 +156,7 @@ communication time : ~1ms
 instruction time : ~1ns
 10-100 messages by secondes
 
-`Portal4` event : PTL_EQ_get, PTL_EQ_wait _poll... (EQ is for Event Queue).
+`Portal4` event : PTL_EQ_get, PTL_EQ_wait PTL_EQ_poll... (EQ is for Event Queue).
 
 sandia `portal 4` (4.3) pdf with the specs.
 

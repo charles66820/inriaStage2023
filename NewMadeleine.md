@@ -36,6 +36,9 @@ export NMAD_DRIVER=shm; mpirun -n 2 -host billy0,billy1 nm_sr_hello2
 
 <!-- --map-by ppr:1:core hostname -->
 
+<!-- sig_shm -->
+<!-- padico-launch -n 2 -DNMAD_DRIVER=shm -DNM_DRIVER_TEST=sig_shm nm_sr_hello2 -->
+
 ## padico vs mpirun
 
 | mpirun                                 | padico                  | description           |
@@ -91,3 +94,5 @@ Example as example :
 - `nmad/examples/sendrecv/nm_sr_event_data.c`
 - `nmad/examples/sendrecv/nm_sr_custom_data.c`
 - `nmad/examples/benchmarks/nm_bench_req_monitor.c`
+
+to test driver `nm_driver_test.c`.
