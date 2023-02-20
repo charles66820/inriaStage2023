@@ -88,5 +88,6 @@ Session is used in many `NewMadeleine` interfaces.
 Example as example :
 
 - `nmad/examples/sendrecv/nm_sr_hello2.c`
+- `nmad/examples/sendrecv/nm_sr_event_data.c`
 - `nmad/examples/sendrecv/nm_sr_custom_data.c`
 - `nmad/examples/benchmarks/nm_bench_req_monitor.c`

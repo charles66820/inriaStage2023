@@ -23,6 +23,8 @@ User interruption :
 
 BXI :
 
+- <https://www.sandia.gov/portals/portals-4-0-specification-clone-2/>
+
 NewMadeleine :
 
 - <https://gitlab.inria.fr/pm2/pm2>
@@ -40,6 +42,10 @@ Dalton :
 - <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/reserve>
 - <https://gitlab.inria.fr/runtime/internal/-/wikis/dalton/dalton>
 
+Signals :
+
+- <https://man7.org/linux/man-pages/man2/sigaction.2.html>
+
 ## salle
 
 Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbra et faire `envoyer` (et non enregistré).
@@ -51,13 +57,18 @@ Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbr
 `ssh cgoedefr@dalton.bordeaux.inria.fr`
 dalton billy0 and billy0 have NIC BXI and infiniband.
 
+## git branch
+
+- `nmad-uintr` : all
+- `nmad-uintr-shm-sig` : shm driver with signal handler
+
 ## TODO
 
 - create a small shared memory program.
-- code a custom test to have one process setup an handler and do infinite loop and second process just wait and send some data. Print all different steps.
 - do some test with signal handler.
 - how to emit event and call the handler
-- add new file `nm_minidriver_shmSig`
+- complete `nm_minidriver_shmSig`
+- lire la specs `portals 4` pour en discuté
 - ...
 
 ## notes User interruption
@@ -137,6 +148,20 @@ void _senduipi(uipi_handle); // uipi_handle is UITT index.
 
 Bull, Atos..
 
+2 networks (of 4):
+
+1. management network : logs, monitoring, services, deployment... (TCP/IP)
+2. interconnect Network : between compute nodes (com), between storage and compute node... (Portal4)
+
+network bandwidth : ~100Gb ~15 GB
+communication time : ~1ms
+instruction time : ~1ns
+10-100 messages by secondes
+
+`Portal4` event : PTL_EQ_get, PTL_EQ_wait _poll... (EQ is for Event Queue).
+
+sandia `portal 4` (4.3) pdf with the specs.
+
 - base on `Portals 4` to do message passing.
 - [`Portals 4`](https://github.com/Portals4/portals4)
 - support `MPI` (Message Passing Interface) and `PGAS` (Partitioned Global Address Space) new parallel programming languages.
@@ -186,8 +211,6 @@ To call the handler we ... TODO:
 ![Alt text](img/rn_image_picker_lib_temp_f484c77a-c389-445e-8c7b-bcc0fc9adee4.jpg)
 
 ### 1. Voire le fonctionnement interne de `NewMadeleine`, les events, les drivers…
-
-Création de la branche `nmad-uintr`.
 
 ### 2. Testes avec le driver `shm`
 
