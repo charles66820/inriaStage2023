@@ -12,22 +12,20 @@ pm2/scripts/pm2-build-packages pm2/scripts/madmpi-mini.conf --prefix=$HOME/soft/
 
 ## run tests
 
-<!-- PM2_ROOT=$HOME/pm2 ./nmad-test.sh tests shm localhost localhost -->
-
 > load env
 
 ```bash
 source $HOME/soft/x86_64/share/madmpi-mini.conf.sh
 ```
 
-> 2 process on one node
+Run 2 process on one node:
 
 ```bash
 padico-launch -n 2 -DNMAD_DRIVER=shm nm_sr_hello2
 export NMAD_DRIVER=shm; mpirun -n 2 nm_sr_hello2
 ```
 
-> 2 process on two nodes
+Run 2 process on two nodes:
 
 ```bash
 padico-launch -n 2 -nodelist billy0,billy1 -DNMAD_DRIVER=shm nm_sr_hello2
@@ -35,9 +33,15 @@ export NMAD_DRIVER=shm; mpirun -n 2 -host billy0,billy1 nm_sr_hello2
 ```
 
 <!-- --map-by ppr:1:core hostname -->
+<!-- PM2_ROOT=$HOME/pm2 ./nmad-test.sh tests shm localhost localhost -->
 
-<!-- sig_shm -->
-<!-- padico-launch -n 2 -DNMAD_DRIVER=shm -DNM_DRIVER_TEST=sig_shm nm_sr_hello2 -->
+Run driver test (`nm_driver_test.h`):
+
+```bash
+padico-launch -n 2 -DNM_DRIVER_TEST=Minidriver_shm nm_driver_test
+padico-launch -n 2 -DNM_DRIVER_TEST=Minidriver_sig_shm nm_driver_test
+export NM_DRIVER_TEST=Minidriver_shm; mpirun -n 2 nm_driver_test
+```
 
 ## padico vs mpirun
 
@@ -95,3 +99,5 @@ Example as example :
 - `nmad/examples/benchmarks/nm_bench_req_monitor.c`
 
 to test driver `nm_driver_test.c`.
+
+eager send/recv : com réactive ??
