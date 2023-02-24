@@ -65,7 +65,9 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 ## TODO
 
 - how to emit event and call the handler (nm_core_status_event)
+- `nm_pw_send_post`
 - complete `nm_minidriver_sig_shm` (poll required and see poll call) (add set_handler(handler) in driver)
+- faire une présentation des uinter
 - lire la specs `portals 4` pour en discuté
 - ...
 
