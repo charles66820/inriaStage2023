@@ -101,7 +101,7 @@ int main(int argc, char const* argv[]) {
     sigaction(SIGUSR1, &customSa, &saveOldSa);
     sigaction(SIGABRT, &customSa, NULL);
 
-    wait(NULL);
+    wait(NULL); // keep the father alive
 
     while (true)
       ;  // replace by computation
