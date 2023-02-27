@@ -64,9 +64,7 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- how to emit event and call the handler (nm_core_status_event)
-- `nm_pw_send_post`
-- complete `nm_minidriver_sig_shm` (poll required and see poll call) (add set_handler(handler) in driver)
+- complete `nm_minidriver_sig_shm` (poll required and see poll call) (add set_handler(handler) in driver) `nm_pw_send_post`
 - faire une présentation des uinter
 - lire la specs `portals 4` pour en discuté
 - ...
@@ -201,10 +199,11 @@ Interfaces :
 - `RPC` (Remote Procedure Calls) depend of sendrecv (sr).
 - `RMA` (One-sided). put/get/fence.
 
-To use an handler with `sendrecv` we use monitor. `nm_sr_request_monitor` for request and `nm_sr_monitor` for any events. (`nm_sendrecv_interface.h`).
+To use an handler with `sendrecv` we use monitor (`nm_monitor_s`). `nm_sr_request_monitor` for request and `nm_sr_monitor` for any events. (`nm_sendrecv_interface.h`).
 To use an handler with `RPC` we use `nm_rpc_handler` that use `sendrecv` monitor.
+Event handler is define like this `void (nm_core_event_notifier_t)(nm_core_event_s event, void* ref)`. And event is a structure that contain: status, gate, tag, seq number of packets, length and request.
 
-To call the handler we ... TODO:
+To emit an event we call `nm_core_status_event(core, event, pack)` with owr event. Ths function will enqueue the event if monitor is set. The handler will be call when the scheduler (`nm_schedule(core)`) call event dispatch function (`nm_core_events_dispatch(core)`).
 
 ## road map
 
