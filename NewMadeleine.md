@@ -10,6 +10,12 @@ scripts/pm2-build-packages scripts/madmpi-mini.conf --prefix=$HOME/soft/x86_64
 pm2/scripts/pm2-build-packages pm2/scripts/madmpi-mini.conf --prefix=$HOME/soft/x86_64
 ```
 
+With debug flags
+
+```bash
+scripts/pm2-build-packages scripts/madmpi-mini-debug.conf --prefix=$HOME/soft/x86_64
+```
+
 ## run tests
 
 > load env
@@ -21,15 +27,23 @@ source $HOME/soft/x86_64/share/madmpi-mini.conf.sh
 Run 2 process on one node:
 
 ```bash
-padico-launch -n 2 -DNMAD_DRIVER=shm nm_sr_hello2
-export NMAD_DRIVER=shm; mpirun -n 2 nm_sr_hello2
+padico-launch -n 2 -DNMAD_DRIVER=sig_shm nm_sr_hello2
+export NMAD_DRIVER=sig_shm; mpirun -n 2 nm_sr_hello2
 ```
 
 Run 2 process on two nodes:
 
 ```bash
-padico-launch -n 2 -nodelist billy0,billy1 -DNMAD_DRIVER=shm nm_sr_hello2
-export NMAD_DRIVER=shm; mpirun -n 2 -host billy0,billy1 nm_sr_hello2
+padico-launch -n 2 -nodelist billy0,billy1 -DNMAD_DRIVER=sig_shm nm_sr_hello2
+export NMAD_DRIVER=sig_shm; mpirun -n 2 -host billy0,billy1 nm_sr_hello2
+```
+
+Run 2 process on one node with gdb:
+
+```bash
+padico-launch -d -c -n 2 -DNMAD_DRIVER=sig_shm nm_sr_hello2
+padico-launch -n 2 -DNMAD_DRIVER=sig_shm x-terminal-emulator -e gdb nm_sr_hello2
+export NMAD_DRIVER=sig_shm; mpirun -n 2 x-terminal-emulator -e gdb nm_sr_hello2
 ```
 
 <!-- --map-by ppr:1:core hostname -->
