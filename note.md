@@ -64,7 +64,12 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- complete `nm_minidriver_sig_shm` (poll required and see poll call) (add set_handler(handler) in driver) `nm_pw_send_post`
+- git merge
+- see how capabilities work and add handler capability.
+- set handler in init (if capability "handler" is set)
+- v1 ignore poll, if capability "handler" is set, in `nm_pw_recv_poll`. and see for send_poll (set no_send_poll?).
+- v2 we juste dequeue(pw).
+- add hashtable to map pid and status (connection)
 - faire une présentation des uinter
 - lire la specs `portals 4` pour en discuté
 - ...
@@ -205,6 +210,7 @@ Event handler is define like this `void (nm_core_event_notifier_t)(nm_core_event
 
 To emit an event we call `nm_core_status_event(core, event, pack)` with owr event. Ths function will enqueue the event if monitor is set. The handler will be call when the scheduler (`nm_schedule(core)`) call event dispatch function (`nm_core_events_dispatch(core)`).
 
+In driver `context` is an instance for a NIC and `status` is an instance of an connexion.
 ## road map
 
 ![Alt text](img/rn_image_picker_lib_temp_f484c77a-c389-445e-8c7b-bcc0fc9adee4.jpg)
