@@ -55,7 +55,7 @@ Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbr
 `ssh acces.bordeaux.inria.fr`
 
 `ssh cgoedefr@dalton.bordeaux.inria.fr`
-dalton billy0 and billy0 have NIC BXI and infiniband.
+On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 ## git branch
 
@@ -64,35 +64,63 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- v2 we juste dequeue(pw) to stop recv_poll
 - faire une présentation des uinter
+- v2 we juste dequeue(pw) to stop recv_poll
 - lire la specs `portals 4` pour en discuté
 - for `sig_shm` we consider one context by process and one connection by dest process (dest->pid).
 - ...
 
 ## notes User interruption
 
-- `IPC` : Inter-Process Communication.
-- `SENDUIPI` : SEND User Inner Process Interruption.
-- `uintr` for User INTeRuption.
-  > UINTR Connection management.
-- `UPID` : User Posted Interrupt Descriptor.
-  ![Alt text](img/UPID_Format.png)
-- `UITT` : User Interrupt Target Table. (own two fields **UPID pointer** and **vector information**).
-- `UITT index` : index that refer to an `UITT` ?
-- `flags: int` an interruption identifier.
-- `handler_func: ??` the function handler?.
-- `uintr_fd: int` the file descriptor for the ipc.
-- `vector: ??`
-- `uipi_handle: int?`
-- `UIF` : User-Interrupt Flag
+Definitions :
 
-- `senduipi <uipi_handle>` – send a user IPI to a target task based on the UITT index.
-- `uiret` : Return from a User Interrupt handler.
-- `clui` : Mask user interrupts by clearing UIF (User Interrupt Flag).
-- `stui` : Unmask user interrupts by setting UIF.
-- `testui` : Test current value of UIF.
-![Alt text](img/UINTR_Intrinsics.png)
+| name       | description                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `IPC`      | Inter-Process Communication                                                                |
+| `uintr`    | User-INTeRupt                                                                              |
+| `SENDUIPI` | SEND User Inner Process Interruption                                                       |
+| `UIPI`     | User Inner Process Interruption                                                            |
+| `UIF`      | User-Interrupt Flag. To enable or disable                                                  |
+| `UITT`     | User-Interrupt Target Table. (own two fields **UPID pointer** and **vector information**). |
+| `UPID`     | User Posted Interrupt Descriptor                                                           |
+
+![Alt text](img/UPID_Format.png)
+> UINTR Connection management.
+
+- `uintr_notify` : ??.
+- `uiret` : Return from a User-Interrupt handler.
+
+Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
+<!-- source ![img](img/UINTR_Intrinsics.png) form [Intel® 64 and IA-32 Architectures Software Developer’s Manual](biblio/325462-sdm-vol-1-2abcd-3abcd.pdf) -->
+| Instruction    | Intrinsic                  | Meaning                                                  | description                                          |
+| -------------- | -------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| `clui`         | _clui(void): void          | **CL**ear **U**ser **I**nterrupt                         | Mask user interrupts by clearing UIF                 |
+| `stui`         | _stui(void): void          | **S**e**T** **U**ser **I**nterrupt                       | Unmask user interrupts by setting UIF                |
+| `testui`       | UIF ← _testui(void): uint8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                             |
+| `senduipi r64` | _senduipi(uint64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target process using the UITT index |
+
+Syscall:
+
+Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
+<!-- TODO:find source -->
+| Syscall                                           | Description        |
+| ------------------------------------------------- | ------------------ |
+| status     ← syscall(471, handler, flags): int32  | register handler   |
+| status     ← syscall(472, flags):          int32  | unregister handler |
+| fd         ← syscall(473, vector, flags):  int32  | create fd          |
+| uipi_index ← syscall(474, fd, flags):      int32  | register sender    |
+| status     ← syscall(475, ipi_idx, flags): int32  | unregister sender  |
+| ?          ← syscall(476, flags):          int32? | wait               |
+
+Explain variables in example:
+
+| var name       | type                                    | description                                    |
+| -------------- | --------------------------------------- | ---------------------------------------------- |
+| uipi_index     | int32                                   | (`UITT index`) index of an entry in the `UITT` |
+| `flags`        | int32                                   | an interruption identifier                     |
+| `handler_func` | void fun(struct __uintr_frame*, uint64) | the handler function address                   |
+| `uintr_fd`     | int32                                   | the file descriptor for the ipc                |
+| `vector`       | int32??                                 | ??                                             |
 
 ### Receiver APIs
 
@@ -110,6 +138,12 @@ Link file descriptor to interruption flag.
 uintr_fd = uintr_create_fd(vector, flags); // NOTE: type ??
 ```
 
+Enable interrupts
+
+```c
+_stui();
+```
+
 I case we interact with the kernel.
 
 ```c
@@ -125,14 +159,14 @@ int uintr_notify(int uintr_fd);
 
 ```c
 // Receive FD via inheritance or UNIX domain sockets
-uipi_handle = uintr_register_sender(uintr_fd, flags);
+uipi_index = uintr_register_sender(uintr_fd, flags);
 int uintr_unregister_sender(uintr_fd, flags);
 ```
 
 Send an interruption
 
 ```c
-void _senduipi(uipi_handle); // uipi_handle is UITT index.
+void _senduipi(uipi_index); // uipi_index is UITT index.
 ```
 
 ### Env
