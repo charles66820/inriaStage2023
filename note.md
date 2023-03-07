@@ -72,7 +72,7 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 ## notes User interruption
 
-Definitions :
+### Definitions
 
 | name       | description                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------ |
@@ -88,18 +88,18 @@ Definitions :
 > UINTR Connection management.
 
 - `uintr_notify` : ??.
-- `uiret` : Return from a User-Interrupt handler.
 
 Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
-<!-- source ![img](img/UINTR_Intrinsics.png) form [Intel® 64 and IA-32 Architectures Software Developer’s Manual](biblio/325462-sdm-vol-1-2abcd-3abcd.pdf) -->
+<!-- source: ![img](img/UINTR_Intrinsics.png) form Intel slide [User Interrupt COMPILER GUIDE](img/UINTR-compiler-guide.pdf) and [Intel® 64 and IA-32 Architectures Software Developer’s Manual](biblio/325462-sdm-vol-1-2abcd-3abcd.pdf) -->
 | Instruction    | Intrinsic                  | Meaning                                                  | description                                          |
 | -------------- | -------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
 | `clui`         | _clui(void): void          | **CL**ear **U**ser **I**nterrupt                         | Mask user interrupts by clearing UIF                 |
 | `stui`         | _stui(void): void          | **S**e**T** **U**ser **I**nterrupt                       | Unmask user interrupts by setting UIF                |
 | `testui`       | UIF ← _testui(void): uint8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                             |
 | `senduipi r64` | _senduipi(uint64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target process using the UITT index |
+| `uiret`        | ??                         | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler        |
 
-Syscall:
+### Syscall
 
 Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 <!-- TODO:find source -->
@@ -112,17 +112,65 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 | status     ← syscall(475, ipi_idx, flags): int32  | unregister sender  |
 | ?          ← syscall(476, flags):          int32? | wait               |
 
+### Capabilities
+<!-- source: Intel slide [User Interrupt COMPILER GUIDE](img/UINTR-compiler-guide.pdf) and ... -->
+- Allow to deliver interrupt to interrupt handler in user space.
+- If the process is sleep the interruption will be deliver when it's wake up.
+- UINTR handler has multiple calling convention :
+  1. The stack frame is defined by the hardware.
+  2. All register must be preserved. (All registers are saved by the compiler).
+  3. To return from UINTR handler we need to call the `uiret` instruction.
+-
+
+### Env
+
+> Kernel: Linux v5.14.0 + User IPI patches.
+
+### Compiler flags
+
+`-muintr` Enable `uintr` handlers and intrinsics.
+`-mgeneral-regs-only` "Generate code that uses only the integer registers".
+`-minline-all-stringops` "Inline memcpy, memmove, memset and memcmp to avoid vector register usage in library
+functions".
+
+### Compiler attribute
+
+| Attribute                                                                                                  | Description                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `__attribute__ ((interrupt))`                                                                              | Indicate that the specified function is a uintr handler. The compiler will restore all registers, except for the `RFLAGS` register which is restore by the `uiret` instruction (in hardware), and will add the `uiret` instruction at end of the function (instead of the `ret` instruction). |
+| `__attribute__((target("general-regs-only")))`                                                             | Same as compiler flags bu only for this uintr handler.                                                                                                                                                                                                                                        |
+| `__attribute__((target("no_caller_saved_registers")))` or `__attribute__(("no_caller_saved_registers"))`?? | Indicate the the compiler to not save all registers.                                                                                                                                                                                                                                                                                              |
+
+### Limitations
+
+TODO: continue here
+
+### Example
+
 Explain variables in example:
 
-| var name       | type                                    | description                                    |
-| -------------- | --------------------------------------- | ---------------------------------------------- |
-| uipi_index     | int32                                   | (`UITT index`) index of an entry in the `UITT` |
-| `flags`        | int32                                   | an interruption identifier                     |
-| `handler_func` | void fun(struct __uintr_frame*, uint64) | the handler function address                   |
-| `uintr_fd`     | int32                                   | the file descriptor for the ipc                |
-| `vector`       | int32??                                 | ??                                             |
+| var name       | type                                                                  | description                                    |
+| -------------- | --------------------------------------------------------------------- | ---------------------------------------------- |
+| `uipi_index`   | `int32`                                                               | (`UITT index`) index of an entry in the `UITT` |
+| `flags`        | `int32`                                                               | an interruption identifier                     |
+| `handler_func` | `__attribute__ ((interrupt)) void fun(struct __uintr_frame*, uint64)` | the handler function address                   |
+| `uintr_fd`     | `int32`                                                               | the file descriptor for the ipc                |
+| `vector`       | `int32`??                                                             | ??                                             |
 
-### Receiver APIs
+#### Receiver APIs
+
+Handler.
+
+```c
+struct __uintr_frame {
+  unsigned long long rip; // ?
+  unsigned long long rflags; // ?
+  unsigned long long rsp; // ?
+};
+
+__attribute__ ((interrupt))
+void f (struct __uintr_frame *frame, unsigned long long uirrv) {}
+```
 
 Allow to receive interruptions.
 
@@ -151,7 +199,7 @@ I case we interact with the kernel.
 int uintr_notify(int uintr_fd);
 ```
 
-### Sender APIs
+#### Sender APIs
 
 // TODO: test if the flags is the same then receiver.
 
@@ -168,12 +216,6 @@ Send an interruption
 ```c
 void _senduipi(uipi_index); // uipi_index is UITT index.
 ```
-
-### Env
-
-> Kernel: Linux v5.14.0 + User IPI patches.
-
-`-muintr` Compiler flag to allow `uintr`.
 
 ## notes BXI
 
