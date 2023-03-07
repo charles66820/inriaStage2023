@@ -64,13 +64,10 @@ dalton billy0 and billy0 have NIC BXI and infiniband.
 
 ## TODO
 
-- see how capabilities work and add handler capability.
-- set handler in init (if capability "handler" is set)
-- v1 ignore poll, if capability "handler" is set, in `nm_pw_recv_poll`. and see for send_poll (set no_send_poll?).
-- v2 we juste dequeue(pw).
-- add hashtable to map pid and status (connection)
+- v2 we juste dequeue(pw) to stop recv_poll
 - faire une présentation des uinter
 - lire la specs `portals 4` pour en discuté
+- for `sig_shm` we consider one context by process and one connection by dest process (dest->pid).
 - ...
 
 ## notes User interruption
