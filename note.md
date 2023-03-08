@@ -86,29 +86,33 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 ### notes TODO:
 
-![Alt text](img/UPID_Format.png)
+<!-- `ipi_fd` -->
+
+![Alt text](img/UPID_Format.png) // TODO:
 > UINTR Connection management.
 
-- `uintr_notify` : ??.
+- `RFLAGS` // TODO:
+- `ring-3` // TODO:
 
-One UIF store by thread (store in process or thread memory?).
+One UIF store by thread (store in process or thread memory?). Allow to enable/disable uintr.
 Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
-"The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - uvec_fd."
+"The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - `uvec_fd`."
 One create uvec_fd for each 64 vectors in vectors space.
 The uvec_fd must be shared with potential senders. The uvec_fd allows a sender to generate an interrupt with the associated vector.
 When sender and receiver is in the same process we use `uintr_register_self()` and we don't need any `uvec_fd`.
 When the sender task register with the kernel `uintr_register_sender()`, the kernel  would  setup the routing tables (UITT) to connect the sender and receiver. The syscall return the uipi_index, this index is used by _senduipi(uipi_index).
 The sender process can share it's IPI connections with another process `uintr_ipi_fd()`.
-When the receiver task is running (in ring-3) then interruption is directly delivered.
+When the receiver task is running (in `ring-3`) then interruption is directly delivered.
 When the receiver task is not actively running we have different behavior :
 
-1. 
-2. The receiver is in context but not running in ring 3
-3. 
+1. Thread sleep because another thread running. Uintr delivered when thread switch back. "The receiver has been context switched out because it's time slice has expired or a higher priority task is running. The a pending User Interrupt in that case would be delivered when the receiver is context switched back."
+2. "The receiver is in context but not running in `ring-3` (probably due to a syscall). The interrupt will be delivered the task enters `ring-3` again."
+3. Thread in blocked syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
 
 "The vector number pushed onto the stack to identify the source of the interrupt."
-
 The sender and the receiver need to close all fd and unregister uintr (`uintr_unregister_sender()`, `uintr_unregister_handler()`).
+
+`uintr_notify` is function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not bypass kernel).
 
 ### instructions
 
@@ -120,7 +124,7 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 | `stui`         | _stui(void): void       | **S**e**T** **U**ser **I**nterrupt                       | Unmask user interrupts by setting UIF                      |
 | `testui`       | UIF ← _testui(void): u8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                                   |
 | `senduipi r64` | _senduipi(u64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target task (thread) using the UITT index |
-| `uiret`        | ??                      | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
+| `uiret`        |                         | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
 
 ### Syscall
 
@@ -136,6 +140,8 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 | status?    ← syscall(477, vector: u64, flags: u32):             s64 | register self      |
 | status?    ← syscall(478, sp: void*, size: size_t, flags: u32): s64 | alt stack          |
 | fd         ← syscall(479, flags: u32):                          s64 | ipi fd             |
+
+// TODO: check syscall return status
 
 #### In kernel
 
@@ -179,7 +185,7 @@ To now if uintr is available we can check if the "uintr" string is in `/proc/cpu
 
 | Attribute                                              | Description                                                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `__attribute__ ((interrupt))`                          | Indicate that the specified function is a uintr handler. The compiler will restore all registers, except for the `RFLAGS` register which is restore by the `uiret` instruction (in hardware), and will add the `uiret` instruction at end of the function (instead of the `ret` instruction). |
+| `__attribute__((interrupt))`                           | Indicate that the specified function is a uintr handler. The compiler will restore all registers, except for the `RFLAGS` register which is restore by the `uiret` instruction (in hardware), and will add the `uiret` instruction at end of the function (instead of the `ret` instruction). |
 | `__attribute__((target("general-regs-only")))`         | Same as compiler flags but only for this uintr handler.                                                                                                                                                                                                                                       |
 | `__attribute__((target("inline-all-stringops")))`      | Same as compiler flags but only for this uintr handler.                                                                                                                                                                                                                                       |
 | `__attribute__((target("no_caller_saved_registers")))` | Indicate the the compiler to save all registers in called function and not in the caller function (callee-saved). This attribute can be used for a function called from a uintr handler.                                                                                                      |
@@ -202,14 +208,14 @@ Explain variables in example:
 | `flags`        | `s32`                                                              | an interruption identifier                     |
 | `handler_func` | `__attribute__ ((interrupt)) void fun(struct __uintr_frame*, u64)` | the handler function address                   |
 | `uvec_fd`      | `s32`                                                              | the file descriptor for the ipc                |
-| `vector`       | `u64`                                                              | ??                                             |
+| `vector`       | `u64`                                                              | ??   TODO: describe vector                     |
 
 #### Receiver APIs
 
 Handler.
 
 ```c
-struct __uintr_frame {
+struct __uintr_frame { // TODO: understand uintr frame
   unsigned long long rip; // ?
   unsigned long long rflags; // ?
   unsigned long long rsp; // ?
