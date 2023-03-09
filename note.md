@@ -65,6 +65,12 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 ## TODO
 
 - faire une présentation des uinter
+- check if task is thread (get citation)
+- rpm source kernel
+- see RedHat kernel
+- add sig alt stack (test if pthread_self work in the alt stack).
+- add fix for lock and multi thread (try_lock)
+- refactor handler code
 - v2 we juste dequeue(pw) to stop recv_poll
 - lire la specs `portals 4` pour en discuté
 - for `sig_shm` we consider one context by process and one connection by dest process (dest->pid).
@@ -93,6 +99,7 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 - `RFLAGS` // TODO:
 - `ring-3` // TODO:
+- `stack frame` // TODO:
 
 - One UIF store by thread (store in process or thread memory?). Allow to enable/disable uintr.
 - Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
@@ -123,6 +130,7 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 | `testui`       | UIF ← _testui(void): u8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                                   |
 | `senduipi r64` | _senduipi(u64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target task (thread) using the UITT index |
 | `uiret`        |                         | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
+<!-- test if interruption is send after unlock _stui -->
 
 ### Syscall
 
@@ -214,9 +222,9 @@ Handler.
 
 ```c
 struct __uintr_frame { // TODO: understand uintr frame
-  unsigned long long rip; // ?
-  unsigned long long rflags; // ?
-  unsigned long long rsp; // ?
+  unsigned long long rip; // Register Instruction Pointer (AKA. Program Counter (PC)) of ??
+  unsigned long long rflags; // Register FLAGS??
+  unsigned long long rsp; // Register Stack Pointer of ??
 };
 
 __attribute__ ((interrupt))
