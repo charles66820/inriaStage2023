@@ -1,5 +1,29 @@
 # NewMadeleine details
 
+## Links
+
+- <https://gitlab.inria.fr/pm2/pm2>
+- <https://pm2.gitlabpages.inria.fr/pm2/nmad/doc/>
+- <https://theses.hal.science/tel-00469488>
+
+## NewMadeleine notes
+
+- `NewMadeleine` is an rewrite of `Madeleine`.
+- Is a message communication library. `NewMadeleine` send message is mixed order.
+- `Mad-MPI` is an `NewMadeleine` *API adapter* for MPI.
+- `PIOMan` (Process I/O Manager) a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
+- `Marcel` qui est un ordonnancer de threads au niveau utilisateur sur des VP (Virtual Processor) qui sont dans l'espace utilisateur et qui sont bind à un core physique.
+- Interfaces :
+  - sendrecv has monitor (nm_sr_monitor_s).
+  - `MPI` depend of sendrecv (sr) and coll (collective).
+  - `RPC` (Remote Procedure Calls) depend of sendrecv (sr).
+  - `RMA` (One-sided). put/get/fence.
+- To use an handler with `sendrecv` we use monitor (`nm_monitor_s`). `nm_sr_request_monitor` for request and `nm_sr_monitor` for any events. (`nm_sendrecv_interface.h`).
+- To use an handler with `RPC` we use `nm_rpc_handler` that use `sendrecv` monitor.
+- Event handler is define like this `void (nm_core_event_notifier_t)(nm_core_event_s event, void* ref)`. And event is a structure that contain: status, gate, tag, seq number of packets, length and request.
+- To emit an event we call `nm_core_status_event(core, event, pack)` with owr event. Ths function will enqueue the event if monitor is set. The handler will be call when the scheduler (`nm_schedule(core)`) call event dispatch function (`nm_core_events_dispatch(core)`).
+- In driver `context` is an instance for a NIC and `status` is an instance of an connexion.
+
 ## Build
 
 ```bash
@@ -65,7 +89,8 @@ export NM_DRIVER_TEST=Minidriver_shm; mpirun -n 2 nm_driver_test
 | -c                                     | -v                      | verbose               |
 | export NMAD_DRIVER=shm; mpirun \<...\> | -DNMAD_DRIVER=shm       | env var               |
 | -host billy0,billy1                    | -nodelist billy0,billy1 |                       |
-|                                        | -c                      | console ?             |
+|                                        | -c                      | open external console |
+|                                        | -d                      | to run gdb            |
 
 ## ENV vars
 
@@ -105,7 +130,7 @@ Session is used in many `NewMadeleine` interfaces.
 | .recv_buf_release(ˇstatus)                        | SUCCESS                 | 0    | 1   | free the memory zone (the buffer)                                                                                                                                                                    |
 | .recv_cancel(ˇstatus)                             | SUCCESS or NOT_POSTED   | 1    | 1   | cancel a posted request that is waiting to receive data and clean the status                                                                                                                         |
 
-Example as example :
+## Example as example
 
 - `nmad/examples/sendrecv/nm_sr_hello2.c`
 - `nmad/examples/sendrecv/nm_sr_event_data.c`
