@@ -16,10 +16,10 @@ Bull, Atos..
 1. management network : logs, monitoring, services, deployment... (TCP/IP)
 2. interconnect Network : between compute nodes (com), between storage and compute node... (Portal4)
 
-network bandwidth : ~100Gb ~15 GB
-communication time : ~1ms
-instruction time : ~1ns
-10-100 messages by secondes
+- network bandwidth : ~100Gb ~15 GB
+- communication time : ~1ms
+- instruction time : ~1ns
+- 10-100 messages by secondes
 
 `Portal4` event : PTL_EQ_get, PTL_EQ_wait PTL_EQ_poll... (EQ is for Event Queue).
 
@@ -33,11 +33,11 @@ sandia `portal 4` (4.3) pdf with the specs.
 - `NIC` : Network Interface Card (a network card xD).
 - `LME` List Management Engine.
 
-`ASIC switch` (or `BXI switch`)
-`ASIC NCI` (or `BXI NCI`)
+- `ASIC switch` (or `BXI switch`)
+- `ASIC NCI` (or `BXI NCI`)
 
-Transmit Logic (TX).
-Receive logic (RX).
+- Transmit Logic (TX).
+- Receive logic (RX).
 
 `ASIP` (Application Specific Instruction set Processor).
 

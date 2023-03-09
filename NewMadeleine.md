@@ -12,7 +12,7 @@
 - Is a message communication library. `NewMadeleine` send message is mixed order.
 - `Mad-MPI` is an `NewMadeleine` *API adapter* for MPI.
 - `PIOMan` (Process I/O Manager) a framework used by MPI implementations to transparently made the communication progression asynchronous. I/O manager.
-- `Marcel` qui est un ordonnancer de threads au niveau utilisateur sur des VP (Virtual Processor) qui sont dans l'espace utilisateur et qui sont bind à un core physique.
+- ~~`Marcel` qui est un ordonnancer de threads au niveau utilisateur sur des VP (Virtual Processor) qui sont dans l'espace utilisateur et qui sont bind à un core physique.~~
 - Interfaces :
   - sendrecv has monitor (nm_sr_monitor_s).
   - `MPI` depend of sendrecv (sr) and coll (collective).
@@ -101,10 +101,10 @@ export NM_DRIVER_TEST=Minidriver_shm; mpirun -n 2 nm_driver_test
 
 ## Code
 
-`nmad/drivers` all driver folders.
-`nmad/examples` examples of interfaces use.
-`nmad/interfaces` all interfaces folder (implementation and header) (e.g. MPI, RPC, sendrecv...).
-`nmad/strategies` all strategies folders.
+- `nmad/drivers` all driver folders.
+- `nmad/examples` examples of interfaces use.
+- `nmad/interfaces` all interfaces folder (implementation and header) (e.g. MPI, RPC, sendrecv...).
+- `nmad/strategies` all strategies folders.
 
 The session (`nmad/interfaces/session/src/nm_session.c`) initialise the strategy and the driver and send them to the `p_core` (nm_core.c).
 
