@@ -94,25 +94,23 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 - `RFLAGS` // TODO:
 - `ring-3` // TODO:
 
-One UIF store by thread (store in process or thread memory?). Allow to enable/disable uintr.
-Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
-"The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - `uvec_fd`."
-One create uvec_fd for each 64 vectors in vectors space.
-The uvec_fd must be shared with potential senders. The uvec_fd allows a sender to generate an interrupt with the associated vector.
-When sender and receiver is in the same process we use `uintr_register_self()` and we don't need any `uvec_fd`.
-When the sender task register with the kernel `uintr_register_sender()`, the kernel  would  setup the routing tables (UITT) to connect the sender and receiver. The syscall return the uipi_index, this index is used by _senduipi(uipi_index).
-The sender process can share it's IPI connections with another process `uintr_ipi_fd()`.
-When the receiver task is running (in `ring-3`) then interruption is directly delivered.
-When the receiver task is not actively running we have different behavior :
+- One UIF store by thread (store in process or thread memory?). Allow to enable/disable uintr.
+- Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
+- "The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - `uvec_fd`."
+- One create uvec_fd for each 64 vectors in vectors space.
+- The uvec_fd must be shared with potential senders. The uvec_fd allows a sender to generate an interrupt with the associated vector.
+- When sender and receiver is in the same process we use `uintr_register_self()` and we don't need any `uvec_fd`.
+- When the sender task register with the kernel `uintr_register_sender()`, the kernel  would  setup the routing tables (UITT) to connect the sender and receiver. The syscall return the uipi_index, this index is used by _senduipi(uipi_index).
+- The sender process can share it's IPI connections with another process `uintr_ipi_fd()`.
+- When the receiver task is running (in `ring-3`) then interruption is directly delivered.
+- When the receiver task is not actively running we have different behavior :
+  1. Thread sleep because another thread running. Uintr delivered when thread switch back. "The receiver has been context switched out because it's time slice has expired or a higher priority task is running. The a pending User Interrupt in that case would be delivered when the receiver is context switched back."
+  2. "The receiver is in context but not running in `ring-3` (probably due to a syscall). The interrupt will be delivered the task enters `ring-3` again."
+  3. Thread in blocked syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
+- "The vector number pushed onto the stack to identify the source of the interrupt."
+- The sender and the receiver need to close all fd and unregister uintr (`uintr_unregister_sender()`, `uintr_unregister_handler()`).
 
-1. Thread sleep because another thread running. Uintr delivered when thread switch back. "The receiver has been context switched out because it's time slice has expired or a higher priority task is running. The a pending User Interrupt in that case would be delivered when the receiver is context switched back."
-2. "The receiver is in context but not running in `ring-3` (probably due to a syscall). The interrupt will be delivered the task enters `ring-3` again."
-3. Thread in blocked syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
-
-"The vector number pushed onto the stack to identify the source of the interrupt."
-The sender and the receiver need to close all fd and unregister uintr (`uintr_unregister_sender()`, `uintr_unregister_handler()`).
-
-`uintr_notify` is function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not bypass kernel).
+- `uintr_notify` is function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not bypass kernel).
 
 ### instructions
 
@@ -145,19 +143,19 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 
 #### In kernel
 
-`arch/x86/kernel/Makefile`
-`arch/x86/include/asm/uintr.h`
-`arch/x86/kernel/uintr.c`
+- `arch/x86/kernel/Makefile`
+- `arch/x86/include/asm/uintr.h`
+- `arch/x86/kernel/uintr.c`
 
 Syscalls:
 
-`arch/x86/entry/syscalls/syscall_64.tbl`
-`include/linux/syscalls.h`
+- `arch/x86/entry/syscalls/syscall_64.tbl`
+- `include/linux/syscalls.h`
 
 Tests:
 
-`tools/testing/selftests/x86/uintr.c`
-`tools/testing/selftests/uintr`
+- `tools/testing/selftests/x86/uintr.c`
+- `tools/testing/selftests/uintr`
 
 ### Capabilities
 <!-- source: Intel slide [User Interrupt COMPILER GUIDE](img/UINTR-compiler-guide.pdf) and ... -->
@@ -177,9 +175,9 @@ To now if uintr is available we can check if the "uintr" string is in `/proc/cpu
 
 ### Compiler flags
 
-`-muintr` Enable `uintr` handlers and intrinsics.
-`-mgeneral-regs-only` "Generate code that uses only the integer registers" (to only save integer register).
-`-minline-all-stringops` "Inline memcpy, memmove, memset and memcmp to avoid vector register usage in library functions".
+- `-muintr` Enable `uintr` handlers and intrinsics.
+- `-mgeneral-regs-only` "Generate code that uses only the integer registers" (to only save integer register).
+- `-minline-all-stringops` "Inline memcpy, memmove, memset and memcmp to avoid vector register usage in library functions".
 
 ### Compiler attribute
 
