@@ -24,14 +24,14 @@ Examples :
 
 ### salle
 
-Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbra et faire `envoyer` (et non enregistré).
+- Pour réservé une salle il faut ajouté un événement dans le calendrier Zimbra et faire `envoyer` (et non enregistré).
 
 ### ssh
 
-`ssh acces.bordeaux.inria.fr`
+- `ssh acces.bordeaux.inria.fr`
 
-`ssh cgoedefr@dalton.bordeaux.inria.fr`
-On daltons `billy0` and `billy1` have BXI and infiniband NICs.
+- `ssh cgoedefr@dalton.bordeaux.inria.fr`
+  On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 ### git branch
 
@@ -40,6 +40,7 @@ On daltons `billy0` and `billy1` have BXI and infiniband NICs.
 
 ### Emacs
 
+- `C-x` = `Ctrl+x`
 - `M-x` = `Alt+x`
 - `s-x` = `Mod4+x`
 

@@ -21,6 +21,19 @@
 | `UITT`     | User-Interrupt Target Table. (own two fields **UPID pointer** and **vector information**). |
 | `UPID`     | User Posted Interrupt Descriptor                                                           |
 
+- `rflags` is for Register FLAGS. This register contains the following flags that represent the stats of the program:
+  - CF (Carry flag)
+  - PF (Parity flag)
+  - ZF (Zero flag)
+  - SF (Sign flag)
+  - TF (Trap flag)
+  - IF (Interrupt enable flag)
+  - DF (Direction flag)
+  - OF (Overflow flag)
+  - ...
+- `rip` is for Register Instruction Pointer (AKA. Program Counter (PC))
+- `rsp` is for Register Stack Pointer
+
 ## notes TODO:
 
 <!-- `ipi_fd` -->
@@ -28,7 +41,6 @@
 ![Alt text](img/UPID_Format.png) // TODO:
 > UINTR Connection management.
 
-- `RFLAGS` // TODO:
 - `ring-3` // TODO:
 - `stack frame` // TODO:
 
@@ -153,9 +165,9 @@ Handler.
 
 ```c
 struct __uintr_frame { // TODO: understand uintr frame
-  unsigned long long rip; // Register Instruction Pointer (AKA. Program Counter (PC)) of ??
-  unsigned long long rflags; // Register FLAGS??
-  unsigned long long rsp; // Register Stack Pointer of ??
+  unsigned long long rip; // of ?? TODO: test
+  unsigned long long rflags; // of ?? TODO: test
+  unsigned long long rsp; // of ?? TODO: test
 };
 
 __attribute__ ((interrupt))
