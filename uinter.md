@@ -36,15 +36,18 @@
 
 <!-- task is code execute by thread (One task <=> One thead)-->
 
+- In `protected mode` the CPU can be in 4 privilege levels (or privilege rings), numbered from 0 to 3.
+  1. `ring-0` the most privilege, for **kernel**. Access to all instructions...
+  2. `ring-1` for **device drivers**. For I/O and device instructions...
+  3. `ring-2` for **device drivers**. For I/O and device instructions...
+  4. `ring-3` the least privilege, for **applications**. User instruction like operation, on scalar and vector...
+- The `stack frame` is a section of the stack that correspond to an function call. That contain the return address, the argument parameters, the callee-saved copies of registers modified and the local variables.
+
 ## notes TODO:
 
 <!-- `ipi_fd` -->
 
 ![Alt text](img/UPID_Format.png) // TODO:
-> UINTR Connection management.
-
-- `ring-3` // TODO:
-- `stack frame` // TODO:
 
 - Each thread has one UIF local flag (store in thread memory? or in register?). Allow to enable/disable uintr.
 - Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
@@ -124,6 +127,8 @@ Tests:
 - One uintr handler by thread and not by process TODO: test <!-- source: "Only  one interrupt  handler  can  be  registered by a particular thread within a process."https://raw.githubusercontent.com/intel/uintr-linux-kernel/uintr-next/tools/uintr/manpages/0_overview.txt -->
 
 ## Env
+
+We need a CPU `Intel Xeon Sapphire Rapids`.
 
 > Kernel: Linux v5.14.0 + User IPI patches.
 
