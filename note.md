@@ -41,8 +41,12 @@ Examples :
 ### Emacs
 
 - `C-x` = `Ctrl+x`
-- `M-x` = `Alt+x`
+- `M-x` = `Alt+x` (Meta-x)
 - `s-x` = `Mod4+x`
+
+- "M-x c-mode"
+- "C-x H" : selection de tous le texte du buffer courant
+- "M-x indent-region" : ré-indenter la sélection
 
 ### Cmd
 
