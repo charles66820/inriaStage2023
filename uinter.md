@@ -34,6 +34,8 @@
 - `rip` is for Register Instruction Pointer (AKA. Program Counter (PC))
 - `rsp` is for Register Stack Pointer
 
+<!-- task is code execute by thread (One task <=> One thead)-->
+
 ## notes TODO:
 
 <!-- `ipi_fd` -->
@@ -44,8 +46,9 @@
 - `ring-3` // TODO:
 - `stack frame` // TODO:
 
-- One UIF store by thread (store in process or thread memory?). Allow to enable/disable uintr.
+- Each thread has one UIF local flag (store in thread memory? or in register?). Allow to enable/disable uintr.
 - Foreach thread with registered handle its own an unique vector space of 64 vectors (vector type is u64 and is a number).
+  <!-- source: "2) Each thread that registers a handler has its own unique vector space of 64 vectors. The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - uvec_fd." -->
 - "The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - `uvec_fd`."
 - One create uvec_fd for each 64 vectors in vectors space.
 - The uvec_fd must be shared with potential senders. The uvec_fd allows a sender to generate an interrupt with the associated vector.
@@ -62,6 +65,8 @@
 
 - `uintr_notify` is function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not bypass kernel).
 
+- `uintr_alt_stack` create a different stack than the one it was running for the uintr handler. The stack is create at initialisation and the sp is change by ?? (compiler or cpu? / check for "vector number pushed") // TODO:
+
 ## instructions
 
 Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
@@ -72,7 +77,7 @@ Intrinsics (`x86gprintrin.h`) (x86 gpr intr in):
 | `stui`         | _stui(void): void       | **S**e**T** **U**ser **I**nterrupt                       | Unmask user interrupts by setting UIF                      |
 | `testui`       | UIF ← _testui(void): u8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                                   |
 | `senduipi r64` | _senduipi(u64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target task (thread) using the UITT index |
-| `uiret`        |                         | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
+| `uiret`        | _uiret(void): void      | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
 <!-- test if interruption is send after unlock _stui -->
 
 ## Syscall
@@ -123,6 +128,8 @@ Tests:
 > Kernel: Linux v5.14.0 + User IPI patches.
 
 To now if uintr is available we can check if the "uintr" string is in `/proc/cpuinfo` under the "flags" field.
+
+Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 
 ## Compiler flags
 
