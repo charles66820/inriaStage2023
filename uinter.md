@@ -11,17 +11,17 @@
 
 ## Definitions
 
-| name              | description                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------ |
-| `IPC`             | Inter-Process Communication                                                                |
-| `uintr`           | User-INTeRupt                                                                              |
-| `SENDUIPI`        | SEND User Inner Process Interruption                                                       |
-| `UIPI`            | User Inner Process Interruption                                                            |
-| `UIF`             | User-Interrupt Flag. To enable or disable                                                  |
-| `UITT`            | User-Interrupt Target Table. (own two fields **UPID pointer** and **vector information**). |
-| `UPID`            | User Posted Interrupt Descriptor                                                           |
-| `GPR`             | General-Purpose Registers                                                                  |
-| `uipi_index: s32` | (`UITT index`) index of an entry in the `UITT`                                             |
+| name              | description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `IPC`             | **I**nter-**P**rocess **C**ommunication                  |
+| `uintr`           | **U**ser-**INT**e**R**upt                                |
+| `SENDUIPI`        | **SEND** **U**ser **I**nner **P**rocess **I**nterruption |
+| `UIPI`            | **U**ser **I**nner **P**rocess **I**nterruption          |
+| `UIF`             | **U**ser-**I**nterrupt **F**lag                          |
+| `UITT`            | **U**ser-**I**nterrupt **T**arget **T**able              |
+| `UPID`            | **U**ser **P**osted **I**nterrupt **D**escriptor         |
+| `GPR`             | **G**eneral-**P**urpose **R**egisters                    |
+| `uipi_index: s32` | (`UITT index`) index of an entry in the `UITT`           |
 
 - `rflags` is for Register FLAGS. This register contains the following flags that represent the stats of the program:
   - CF (Carry flag)
@@ -56,39 +56,38 @@ X86 GPR intrinsics (`x86gprintrin.h`):
 | `testui`       | UIF ← _testui(void): u8 | **TEST** **U**ser **I**nterrupt                          | Get current value of UIF                                   |
 | `senduipi r64` | _senduipi(u64): void    | **SEND** **U**ser **I**nner **P**rocess **I**nterruption | send a UIPI to a target task (thread) using the UITT index |
 | `uiret`        | _uiret(void): void      | **U**ser **I**nterrupt **RET**urn                        | Must be call at end of User-Interrupt handler              |
-<!-- TODO: test if interruption is send after unlock _stui -->
 
 - Each thread has one **UIF** local flag (store in thread memory? or in register?). Allow to enable / disable uintr.
 
 ## Syscall
 
 <!-- source: <https://github.com/intel/uintr-linux-kernel/blob/uintr-next/arch/x86/entry/syscalls/syscall_64.tbl> and  <https://github.com/intel/uintr-linux-kernel/blob/uintr-next/include/linux/syscalls.h> -->
-| Syscall                                                             | Description        | Function name            | task     |
-| ------------------------------------------------------------------- | ------------------ | ------------------------ | -------- |
-| status     ← syscall(471, handler: void*, flags: u32):          s64 | register handler   | uintr_register_handler   | receiver |
-| status     ← syscall(472, flags: u32):                          s64 | unregister handler | uintr_unregister_handler | receiver |
-| uvec_fd    ← syscall(473, vector: u64, flags: u32):             s64 | *create* vector fd | uintr_vector_fd          | receiver |
-| uipi_index ← syscall(474, uvec_fd: s32, flags: u32):            s64 | register sender    | uintr_register_sender    | sender   |
-| status     ← syscall(475, uvec_fd: s32, flags: u32):            s64 | unregister sender  | uintr_unregister_sender  | sender   |
-| status?    ← syscall(476, usec: u64, flags: u32):               s64 | wait               | uintr_wait               | receiver |
-| status?    ← syscall(477, vector: u64, flags: u32):             s64 | register self      | uintr_register_self      | ?        |
-| status?    ← syscall(478, sp: void*, size: size_t, flags: u32): s64 | alt stack          | uintr_alt_stack          | receiver |
-| ipi_fd     ← syscall(479, flags: u32):                          s64 | ipi fd             | uintr_ipi_fd             | sender   |
+| Syscall                                                             | Function name            | task     |
+| ------------------------------------------------------------------- | ------------------------ | -------- |
+| status     ← syscall(471, handler: void*, flags: u32):          s64 | uintr_register_handler   | receiver | register handler   |
+| status     ← syscall(472, flags: u32):                          s64 | uintr_unregister_handler | receiver | unregister handler |
+| uvec_fd    ← syscall(473, vector: u64, flags: u32):             s64 | uintr_vector_fd          | receiver | *create* vector fd |
+| uipi_index ← syscall(474, uvec_fd: s32, flags: u32):            s64 | uintr_register_sender    | sender   | register sender    |
+| status     ← syscall(475, uvec_fd: s32, flags: u32):            s64 | uintr_unregister_sender  | sender   | unregister sender  |
+| status?    ← syscall(476, usec: u64, flags: u32):               s64 | uintr_wait               | receiver | wait               |
+| status?    ← syscall(477, vector: u64, flags: u32):             s64 | uintr_register_self      | ?        | register self      |
+| status?    ← syscall(478, sp: void*, size: size_t, flags: u32): s64 | uintr_alt_stack          | receiver | alt stack          |
+| ipi_fd     ← syscall(479, flags: u32):                          s64 | uintr_ipi_fd             | sender   | ipi fd             |
 
 ### Syscalls details
 
 1. `uintr_register_handler(handler, flags)`: use by a receiver to setup the given handler function as uinter handler. ~~The flag allow to identify the handler registration...~~ TODO: more detail for status and flags.
-2. `uintr_unregister_handler(flags)`: use by a receiver to unregister the handler. ~~To identify the handler the syscall use the same flags use for registration.~~
-3. `uintr_vector_fd(vector, flags)`: use by a receiver thread to get a file descriptor (uvec_fd) linked to one of its vectors. This registers the vector as used.
+2. `uintr_unregister_handler(flags)`: use by a receiver to unregister the handler. ~~To identify the handler the syscall use the same flags use for registration.~~ TODO: more detail for status and flags.
+3. `uintr_vector_fd(vector, flags)`: use by a receiver thread to get a file descriptor (uvec_fd) linked to one of its vectors. This registers the vector as used. TODO: more detail for status and flags.
   <br>- We can create one `uvec_fd` for each 64 vector in vectors space.
   <br>- The `uvec_fd` must be shared with potential senders.
-4. `uintr_register_sender(uvec_fd, flags)`: use by a sender task to setup an entry in the routing table (UITT) and generate the `uipi_index`. The `uipi_index` will be return by the syscall and can be used by the instruction `SENDUIPI` (_senduipi(uipi_index)). ~~The flag identify the registration but idk if is the same as receiver flags.~~ // TODO: more detail for flags
+4. `uintr_register_sender(uvec_fd, flags)`: use by a sender task to setup an entry in the routing table (UITT) and generate the `uipi_index`. The `uipi_index` will be return by the syscall and can be used by the instruction `SENDUIPI` (_senduipi(uipi_index)). ~~The flag identify the registration but idk if is the same as receiver flags.~~ TODO: more detail for status and flags.
   <br>- The routing tables (UITT) is setup in the kernel, is used to connect the sender and receiver.
-5. `uintr_unregister_sender(uvec_fd, flags)`: use by a sender task to clean on entry of UITT identified by the uvec_fd. TODO: more detail for status and flags
-6. `uintr_wait(usec, flags)`: use by a receiver to have a passive waiting. // TODO: more detail for usec, status and flags
-7. `uintr_register_self(vector, flags)`: use by a receiver for all sender in the same process. The kernel create an entry in the UITT without any `uvec_fd`.
-8. `uintr_alt_stack(*sp, size, flags)`: use by a receiver to create a different stack of size and fill the pointer in argument `*sp`. This stack is used when the uintr handler is called. //TODO: more detail for status and flags and (rsp is change by compiler? or cpu? / check for "vector number pushed")
-9. `uintr_ipi_fd(flags)`: use by a sender to share it's IPI connection with another process. Return the file descriptor. // TODO: check syscall return status
+5. `uintr_unregister_sender(uvec_fd, flags)`: use by a sender task to clean on entry of UITT identified by the uvec_fd. TODO: more detail for status and flags.
+6. `uintr_wait(usec, flags)`: use by a receiver to have a passive waiting. TODO: more detail for usec, status and flags
+7. `uintr_register_self(vector, flags)`: use by a receiver for all sender in the same process. The kernel create an entry in the UITT without any `uvec_fd`. TODO: more detail for status and flags.
+8. `uintr_alt_stack(*sp, size, flags)`: use by a receiver to create a different stack of size and fill the pointer in argument `*sp`. This stack is used when the uintr handler is called. TODO: more detail for status and flags and (rsp is change by compiler? or cpu? / check for "vector number pushed")
+9. `uintr_ipi_fd(flags)`: use by a sender to share it's IPI connection with another process. Return the file descriptor. TODO: more detail for flags.
 
 ### Syscall enum, handler and structure
 
@@ -110,6 +109,9 @@ The `__uintr_frame` is a structure with three fields. The structure represent...
 3. `u64 rsp` is the stack pointer of ?? TODO: (try to print `void* p = NULL; printf("%p", (void*)&p);`).
 
 - "The vector number pushed onto the stack to identify the source of the interrupt."
+
+`UITT` (own two fields **UPID pointer** and **vector information**). // TODO: explain
+`UPID`
 
 ### In kernel
 
@@ -138,7 +140,7 @@ Tests:
   1. Thread sleep because another thread running. Uintr delivered when thread switch back. "The receiver has been context switched out because it's time slice has expired or a higher priority task is running. The a pending User Interrupt in that case would be delivered when the receiver is context switched back."
   2. "The receiver is in context but not running in `ring-3` (probably due to a syscall). The interrupt will be delivered the task enters `ring-3` again."
   3. Thread in blocked syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
-- One uintr handler by thread and not by process TODO: test <!-- source: "Only  one interrupt  handler  can  be  registered by a particular thread within a process."https://raw.githubusercontent.com/intel/uintr-linux-kernel/uintr-next/tools/uintr/manpages/0_overview.txt -->
+- One uintr handler by thread and not by process <!-- source: "Only  one interrupt  handler  can  be  registered by a particular thread within a process."https://raw.githubusercontent.com/intel/uintr-linux-kernel/uintr-next/tools/uintr/manpages/0_overview.txt -->
 - Each thread with a registered handler own an unique vector space of 64 vectors. This vector is a u64 number.
   <!-- source: "2) Each thread that registers a handler has its own unique vector space of 64 vectors. The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - uvec_fd." -->
 - `uintr_notify` is a function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not kernel bypass).
@@ -154,6 +156,7 @@ Tests:
   > if we use compiler flags we need to separate function call by uintr in an dedicated file.
   <!-- Idk if the function tag with the attribut are also generate for the standard code. TODO: test it! -->
 - We can't use `memcpy`, `memmove`, `memset` and `memcmp` because they won't preserve vector registers. TODO: check if we can use it with `-minline-all-stringops`.
+- A file descriptor need to be shared between receiver and sender. The receiver send fd via inheritance, `pidfd_getfd` or UNIX domain sockets.
 
 ## Best practices
 
@@ -185,28 +188,12 @@ Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 | `__attribute__((target("inline-all-stringops")))`      | Same as compiler flags but only for this uintr handler.                                                                                                                                                                                                                                       |
 | `__attribute__((target("no_caller_saved_registers")))` | Indicate the the compiler to save all registers in called function and not in the caller function (callee-saved). This attribute can be used for a function called from a uintr handler.                                                                                                      |
 
-## notes TODO:
+## TODO
 
-![Alt text](img/UPID_Format.png) // TODO:
-
-| var name | type  | description                    |
-| -------- | ----- | ------------------------------ |
-| `flags`  | `s32` | ~~an interruption identifier~~ |
-
-<!-- TODO: flags is not an identifier -->
-
-### Sender APIs
-
-// use the file descriptor link to an receiver to send an interruption.
-
-```c
-// Receive FD via inheritance or UNIX domain sockets
-uipi_index = uintr_register_sender(uvec_fd, flags);
-int uintr_unregister_sender(uvec_fd, flags);
-```
-
-Send an interruption
-
-```c
-void _senduipi(uipi_index); // uipi_index is UITT index.
-```
+- test if user interruption send during UIF is lock (_clui) we receive interruption after unlock (_stui)
+- test where UIF is store (in thread memory? or in register?)
+- `__uintr_frame` represent the current handler call or the interrupted flow?
+- Status
+- flags (flags is not an identifier)
+- UITT
+- UPID ![UPID](img/UPID_Format.png)
