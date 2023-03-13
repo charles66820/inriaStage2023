@@ -76,7 +76,7 @@ X86 GPR intrinsics (`x86gprintrin.h`):
 
 ### Syscalls details
 
-1. `uintr_register_handler(handler, flags)`: use by a receiver to setup the given handler function as uinter handler. ~~The flag allow to identify the handler registration...~~ TODO: more detail for status and flags.
+1. `uintr_register_handler(handler, flags)`: use by a receiver thread to setup the given handler function as uinter handler. This registration is not inherited for across forks or additional threads are created. ~~The flag allow to identify the handler registration...~~ TODO: more detail for status and flags.
 2. `uintr_unregister_handler(flags)`: use by a receiver to unregister the handler. ~~To identify the handler the syscall use the same flags use for registration.~~ TODO: more detail for status and flags.
 3. `uintr_vector_fd(vector, flags)`: use by a receiver thread to get a file descriptor (uvec_fd) linked to one of its vectors. This registers the vector as used. TODO: more detail for status and flags.
   <br>- We can create one `uvec_fd` for each 64 vector in vectors space.
@@ -137,9 +137,9 @@ Tests:
 - If the task is sleep the interruption will be deliver when it's wake up.
 
 - When the receiver task is not actively running we have different behavior :
-  1. Thread sleep because another thread running. Uintr delivered when thread switch back. "The receiver has been context switched out because it's time slice has expired or a higher priority task is running. The a pending User Interrupt in that case would be delivered when the receiver is context switched back."
-  2. "The receiver is in context but not running in `ring-3` (probably due to a syscall). The interrupt will be delivered the task enters `ring-3` again."
-  3. Thread in blocked syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
+  1. The receiver thread is scheduled out, because it's time slice has expired or another thread with higher priority task running. Uintr will be delivered when thread switch back (scheduled again).
+  2. The receiver thread is blocked in kernel (not in `ring-3`), probably due to a syscall (write...). Uintr will be delivered when thread will be back in user-space (in `ring-3`).
+  3. The thread in interruptible syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
 - One uintr handler by thread and not by process <!-- source: "Only  one interrupt  handler  can  be  registered by a particular thread within a process."https://raw.githubusercontent.com/intel/uintr-linux-kernel/uintr-next/tools/uintr/manpages/0_overview.txt -->
 - Each thread with a registered handler own an unique vector space of 64 vectors. This vector is a u64 number.
   <!-- source: "2) Each thread that registers a handler has its own unique vector space of 64 vectors. The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - uvec_fd." -->
