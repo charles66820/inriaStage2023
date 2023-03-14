@@ -182,7 +182,7 @@ X86 GPR intrinsics (`x86gprintrin.h`):
     - ENODEV  Could not mount (internal) anonymous inode device.
     - ENOMEM  The system is out of available memory to allocate uipi_fd.
 
-### Syscall enum, handler and structure
+### Handler description (structure and vector)
 
 The uintr handler definition has two argument a `frame` and `the vector`.
 
@@ -191,7 +191,7 @@ __attribute__ ((interrupt))
 void handler (struct __uintr_frame *frame, u64 vector) {}
 ```
 
-The `__uintr_frame` is a structure with three fields. The structure represent... // TODO:
+- The `__uintr_frame` is a structure with three fields. The structure represent... // TODO:
 
 1. `u64 rip` is the instruction pointer of ?? TODO:
 2. `u64 rflags` is the register flags of ?? TODO:
@@ -199,10 +199,45 @@ The `__uintr_frame` is a structure with three fields. The structure represent...
 
 - The vector is a number us to identify the source of UIPI, is use like interruption events. The vector value is from 0 to 63 and is pushed onto the stack at UIPI invoked.
 
-`UITT` (own two fields **UPID pointer** and **vector information**). // TODO: explain
-`UPID`
-
 ### In kernel
+
+We hae one `UITT context` by process, this context own two fields **vector information** and **UPID pointer**.
+
+- `UITT`, this table can have `UINTR_MAX_UITT_NR` (`256`) entry.
+  - Each entry of `UITT` (`uintr_uitt_entry`) contains (**vector information**):
+    | bit    | len | Description                                   | Code                   |
+    | ------ | --- | --------------------------------------------- | ---------------------- |
+    | 0      | 1   | valid                                         | `u8 valid`             |
+    | 1-7    | 7   | reserved                                      |                        |
+    | 8-15   | 8   | vector number (on 6 bits. value from 0 to 64) | `u8 user_vec`          |
+    | 16-63  | 48  | reserved                                      | `u8 reserved[6]`       |
+    | 64-127 | 64  | target upid address                           | `u64 target_upid_addr` |
+  - Each entry is stored contiguously in memory and is aligned for the CPU `__packed __aligned(16)`.
+  - The kernel keep a mask (`uitt_mask`) to quickly known which `UITT` index is used.
+  - The kernel protect the `UITT` with `uitt_lock`.
+- **UPID pointer** is store in a table that contain `UINTR_MAX_UITT_NR` entry.
+  - Each entry of `UPID` (`uintr_upid_ctx`) correspond to a receiver `UPID context`.
+  - Each entry of `UPID` are bound to on entry of `UITT` with the same index.
+  - The `uintr_pid_ctx` is allocate when a receiver set an handler. And contains :
+    ![UPID](img/UPID_Format.png)
+
+    ```c
+    struct uintr_upid_ctx {
+      struct list_head node;
+      struct task_struct *task;  /* Receiver task */
+      u64 uvec_mask;      /* track registered vectors per bit */
+      struct uintr_upid *upid;
+      /* TODO: Change to kernel kref api */
+      refcount_t refs;
+      bool receiver_active;    /* Flag for UPID being mapped to a receiver */
+      bool waiting;      /* Flag for UPID blocked in the kernel */
+      unsigned int waiting_cost;  /* Flags for who pays the waiting cost */
+    };
+    ```
+
+> `Vector number` and `receiver upid_ctx` is get from the `uvec_fd`.
+
+### File in kernel
 
 - `arch/x86/kernel/Makefile`
 - `arch/x86/include/asm/uintr.h`
@@ -286,14 +321,28 @@ Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 - test where UIF is store (in thread memory? or in register?)
 - `__uintr_frame` represent the current handler call or the interrupted flow?
 - rsp is change by the compiler? or by the cpu? / vector number pushed by the compiler? or by the cpu?
-- UITT
-- UPID ![UPID](img/UPID_Format.png)
+
+- xstate
 
 - issus for `long sys_uintr_unregister_sender(int uvec_fd, unsigned int flags);`. `uvec_fd` will be name `uipi_index`.
 - FIXME: an error on the manual?
 
-Vector material representation :
+## In kernel code
 
-|     | number |
-| --- | ------ |
-|     | 6 bits |
+```c
+// in `static int do_uintr_register_handler(u64 handler, unsigned int flags)`
+xsave_wrmsrl(xstate, MSR_IA32_UINTR_HANDLER, handler);
+xsave_wrmsrl(xstate, MSR_IA32_UINTR_PD, (u64)upid);
+```
+
+```c
+// in `static int do_uintr_alt_stack(void __user *sp, size_t size)`
+u64 msr64;
+if (sp)
+  msr64 = (u64)sp | 1; //set alt stack
+else
+  msr64 = OS_ABI_REDZONE; //program OS_ABI_REDZONE
+xstate = start_update_xsave_msrs(XFEATURE_UINTR);
+xsave_wrmsrl(xstate, MSR_IA32_UINTR_STACKADJUST, msr64);
+end_update_xsave_msrs();
+```
