@@ -21,7 +21,7 @@
 | `UITT`            | **U**ser-**I**nterrupt **T**arget **T**able                   |
 | `UPID`            | **U**ser **P**osted **I**nterrupt **D**escriptor              |
 | `GPR`             | **G**eneral-**P**urpose **R**egisters                         |
-| `uipi_index: s32` | (`ipi_index` or `UITT index`) index of an entry in the `UITT` |
+| `uipi_index: s32` | (`IPI index` or `UITT index`) index of an entry in the `UITT` |
 
 - `rflags` is for Register FLAGS. This register contains the following flags that represent the stats of the program:
   - CF (Carry flag)
@@ -70,8 +70,8 @@ X86 GPR intrinsics (`x86gprintrin.h`):
 | uipi_index ← syscall(474, uvec_fd: s32, flags: u32):            s64 | uintr_register_sender    | sender   | register sender    |
 | status     ← syscall(475, uvec_fd: s32, flags: u32):            s64 | uintr_unregister_sender  | sender   | unregister sender  |
 | status     ← syscall(476, usec: u64, flags: u32):               s64 | uintr_wait               | receiver | wait               |
-| status?    ← syscall(477, vector: u64, flags: u32):             s64 | uintr_register_self      | ?        | register self      |
-| status?    ← syscall(478, sp: void*, size: size_t, flags: u32): s64 | uintr_alt_stack          | receiver | alt stack          |
+| uipi_index ← syscall(477, vector: u64, flags: u32):             s64 | uintr_register_self      | ?        | register self      |
+| status     ← syscall(478, sp: void*, size: size_t, flags: u32): s64 | uintr_alt_stack          | receiver | alt stack          |
 | ipi_fd     ← syscall(479, flags: u32):                          s64 | uintr_ipi_fd             | sender   | ipi fd             |
 
 ### Syscalls details
@@ -110,9 +110,28 @@ X86 GPR intrinsics (`x86gprintrin.h`):
     - EINVAL      flags is not 0.
     - EINVAL      usec is greater than 1e9 (1000 seconds).
     - EINTR       A user interrupt was received and the interrupt handler returned. (also set when status is 0).
-- `uintr_register_self(vector, flags)`: use by a receiver for all sender in the same process. The kernel create an entry in the UITT without any `uvec_fd`. TODO: more detail for status and flags.
-- `uintr_alt_stack(*sp, size, flags)`: use by a receiver to create a different stack of size and fill the pointer in argument `*sp`. This stack is used when the uintr handler is called. TODO: more detail for status and flags and (rsp is change by compiler? or cpu? / check for "vector number pushed")
-- `uintr_ipi_fd(flags)`: use by a sender to share it's IPI connection with another process. Return the file descriptor. TODO: more detail for flags.
+- `uintr_register_self(vector, flags)`: use by a receiver for all threads (potential sender) in the same process. The kernel create an entry in the UITT without any `uvec_fd`. Return a new user `uipi_index` on success or `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+  - ERRORS (errno):
+    - ENOSYS      Underlying hardware doesn't have support for uintr.
+    - EINVAL      flags is not 0.
+    - ECONNRESET  The user interrupt receiver has disabled the connection.
+    - ESHUTDOWN   The user interrupt receiver has exited the connection.
+    - ENOSPC      No uipi_index can be allocated. The system has run out of the available user IPI indexes.
+    - ENOMEM      The  system  is out of available memory to register a user IPI sender.
+    - ENOSPC      The requested vector is out of available range.
+- `uintr_alt_stack(*sp, size, flags)`: use by a receiver thread to define an alternate stack to uinter handler. The `*sp` pointer must be allocate by the user with the same size as `size`. If `*sp` is NULL the alternate stack will be clear (are also clear by uinter_unregister_handler). The status is `0` on success and `-1` on error (errno is set). The flags is reserved for future use and must be set to 0. TODO: more detail for (rsp is change by compiler? or cpu? / check for "vector number pushed")
+  - ERRORS (errno):
+    - ENOSYS      Underlying hardware doesn't have support for Uintr.
+    - EOPNOTSUPP  No interrupt handler registered.
+    - EINVAL      flags is not 0.
+- `uintr_ipi_fd(flags)`: use by a sender to share its uintr connection with another process. "uipi_fd that abstracts all the `uipi_index` based connections". Return the file descriptor on success or `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+  - ERRORS (errno):
+    - ENOSYS  Underlying hardware doesn't have support for uintr.
+    - EINVAL  flags is not 0.
+    - EMFILE  The  per-process  limit  on  the  number  of  open  file descriptors has been reached.
+    - ENFILE  The system-wide limit on the total number  of  open  files has been reached.
+    - ENODEV  Could not mount (internal) anonymous inode device.
+    - ENOMEM  The system is out of available memory to allocate uipi_fd.
 
 ### Syscall enum, handler and structure
 
