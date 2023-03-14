@@ -164,6 +164,7 @@ X86 GPR intrinsics (`x86gprintrin.h`):
 - `uintr_alt_stack(*sp, size, flags)`: use by a receiver thread to define an alternate stack to uintr handler.
   - The `*sp` pointer must be allocate by the user with the same size as `size`.
   - If `*sp` is NULL the alternate stack will be clear (are also clear by uintr_unregister_handler).
+  - Alt stack is switch by the CPU just before the handler will be call.
   - Return the status `0` on success and `-1` on error (errno is set).
   - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
@@ -197,7 +198,7 @@ void handler (struct __uintr_frame *frame, u64 vector) {}
 2. `u64 rflags` is the register flags of ?? TODO:
 3. `u64 rsp` is the stack pointer of ?? TODO: (try to print `void* p = NULL; printf("%p", (void*)&p);`).
 
-- The vector is a number us to identify the source of UIPI, is use like interruption events. The vector value is from 0 to 63 and is pushed onto the stack at UIPI invoked.
+- The vector is a number us to identify the source of UIPI, is use like interruption events. The vector value is from 0 to 63 and is pushed onto the stack by the CPU at UIPI invoked.
 
 ### In kernel
 
@@ -227,7 +228,6 @@ We hae one `UITT context` by process, this context own two fields **vector infor
       struct task_struct *task;  /* Receiver task */
       u64 uvec_mask;      /* track registered vectors per bit */
       struct uintr_upid *upid;
-      /* TODO: Change to kernel kref api */
       refcount_t refs;
       bool receiver_active;    /* Flag for UPID being mapped to a receiver */
       bool waiting;      /* Flag for UPID blocked in the kernel */
@@ -320,7 +320,6 @@ Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 
 - test where UIF is store (in thread memory? or in register?)
 - `__uintr_frame` represent the current handler call or the interrupted flow?
-- rsp is change by the compiler? or by the cpu? / vector number pushed by the compiler? or by the cpu?
 
 - xstate
 
