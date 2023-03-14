@@ -76,7 +76,9 @@ X86 GPR intrinsics (`x86gprintrin.h`):
 
 ### Syscalls details
 
-- `uintr_register_handler(handler, flags)`: use by a receiver thread to setup the given handler function as uinter handler. This registration is not inherited for across forks or additional threads are created. The status is `0` on success and `-1` on error (errno is set).
+- `uintr_register_handler(handler, flags)`: use by a receiver thread to setup the given handler function as uinter handler.
+  - This registration is not inherited across forks or additional threads are created.
+  - Return the status `0` on success and `-1` on error (errno is set).
   - Flags used to change the blocking behavior:
     - UINTR_HANDLER_FLAG_WAITING_ANY       Enable the support for interrupting blocking system calls. Use any of the below mechanisms to enable support.
     - UINTR_HANDLER_FLAG_WAITING_RECEIVER  Enable the support for interrupting blocking system calls. The cost to wake up the blocking task is paid on the receiver side.
@@ -88,29 +90,53 @@ X86 GPR intrinsics (`x86gprintrin.h`):
     - EFAULT  handler address is not valid.
     - ENOMEM  The system is out of available memory.
     - EBUSY   An interrupt handler has already been registered.
-- `uintr_unregister_handler(flags)`: use by a receiver thread to unregister the handler. Vectors and uvec_fd allocated for this thread would be deactivated. This syscall don't call close on uvec_fd. The status is `0` on success and `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+- `uintr_unregister_handler(flags)`: use by a receiver thread to unregister the handler.
+  - Vectors and `uvec_fd` allocated for this thread would be deactivated.
+  - This syscall don't call close on `uvec_fd`.
+  - Return the status `0` on success and `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS  Underlying hardware doesn't have support for Uintr.
     - EINVAL  flags is not 0.
     - EINVAL  No registered user interrupt handler.
-- `uintr_vector_fd(vector, flags)`: use by a receiver thread to get a file descriptor (uvec_fd) linked to one of its vectors. This registers the vector as used. TODO: more detail for status and flags.
-  - We can create one `uvec_fd` for each 64 vector in vectors space.
-  - The `uvec_fd` must be shared with potential senders.
+- `uintr_vector_fd(vector, flags)`: use by a receiver thread to get a file descriptor (uvec_fd) linked to one of its vectors. This registers the vector as used.
+  - An uintr handler must be defined before call this syscall.
+  - We can create one unique `uvec_fd` for each 64 vector in vectors space.
+  - The `uvec_fd` must be shared with potential senders (other processes and the kernel) to allow them to send an uintr.
+  - Return a new `uvec_fd` file descriptor on success or `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
+  - ERRORS (errno):
+    - ENOSYS  Underlying hardware doesn't have support for Uintr.
+    - EINVAL  flags is not 0.
+    - EFAULT  handler address is not valid. FIXME: an error on the manual? replace address by vector?
+    - EMFILE  The per-process limit on the number of open file descriptors has been reached.
+    - ENFILE  The system-wide limit on the total number of open files has been reached.
+    - ENODEV  Could not mount (internal) anonymous inode device.
+    - ENOMEM  The system is out of available memory to allocate uvec_fd.
+    - ENOSPC  The requested vector is out of available range.
 - `uintr_register_sender(uvec_fd, flags)`: use by a sender task to setup an entry in the routing table (UITT) and generate the `uipi_index`. The `uipi_index` will be return by the syscall and can be used by the instruction `SENDUIPI` (_senduipi(uipi_index)). ~~The flag identify the registration but idk if is the same as receiver flags.~~ TODO: more detail for status and flags.
   - The routing tables (UITT) is setup in the kernel, is used to connect the sender and receiver.
-- `uintr_unregister_sender(uvec_fd, flags)`: use by a sender thread to clear entry of UITT based on (`uipi_index` or `uvec_fd` bug ?). "In case of multi-threaded process this will remove this connection from all the threads that share the same Target table." The status is `0` on success and `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+- `uintr_unregister_sender(uvec_fd, flags)`: use by a sender thread to clear entry of UITT based on (`uipi_index` or `uvec_fd` bug ?).
+  - "In case of multi-threaded process this will remove this connection from all the threads that share the same Target table".
+  - Return the status `0` on success and `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS  Underlying hardware doesn't have support for Uintr.
     - EINVAL  flags is not 0.
     - EINVAL  No connection has been setup for this ipi_index.
-- `uintr_wait(usec, flags)`: use by a receiver thread to suspend for usec microseconds until a uinter is delivered. The status is `0` on success and `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+- `uintr_wait(usec, flags)`: use by a receiver thread to suspend for usec microseconds until a uinter is delivered.
+  - Return the status `0` on success and `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS      Underlying hardware doesn't have support for Uintr.
     - EOPNOTSUPP  No interrupt handler registered.
     - EINVAL      flags is not 0.
     - EINVAL      usec is greater than 1e9 (1000 seconds).
     - EINTR       A user interrupt was received and the interrupt handler returned. (also set when status is 0).
-- `uintr_register_self(vector, flags)`: use by a receiver for all threads (potential sender) in the same process. The kernel create an entry in the UITT without any `uvec_fd`. Return a new user `uipi_index` on success or `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+- `uintr_register_self(vector, flags)`: use by a receiver for all threads (potential sender) in the same process.
+  - The kernel create an entry in the UITT without any `uvec_fd`.
+  - Return a new user `uipi_index` on success or `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS      Underlying hardware doesn't have support for uintr.
     - EINVAL      flags is not 0.
@@ -119,12 +145,19 @@ X86 GPR intrinsics (`x86gprintrin.h`):
     - ENOSPC      No uipi_index can be allocated. The system has run out of the available user IPI indexes.
     - ENOMEM      The  system  is out of available memory to register a user IPI sender.
     - ENOSPC      The requested vector is out of available range.
-- `uintr_alt_stack(*sp, size, flags)`: use by a receiver thread to define an alternate stack to uinter handler. The `*sp` pointer must be allocate by the user with the same size as `size`. If `*sp` is NULL the alternate stack will be clear (are also clear by uinter_unregister_handler). The status is `0` on success and `-1` on error (errno is set). The flags is reserved for future use and must be set to 0. TODO: more detail for (rsp is change by compiler? or cpu? / check for "vector number pushed")
+- `uintr_alt_stack(*sp, size, flags)`: use by a receiver thread to define an alternate stack to uinter handler.
+  - The `*sp` pointer must be allocate by the user with the same size as `size`.
+  - If `*sp` is NULL the alternate stack will be clear (are also clear by uinter_unregister_handler).
+  - Return the status `0` on success and `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS      Underlying hardware doesn't have support for Uintr.
     - EOPNOTSUPP  No interrupt handler registered.
     - EINVAL      flags is not 0.
-- `uintr_ipi_fd(flags)`: use by a sender to share its uintr connection with another process. "uipi_fd that abstracts all the `uipi_index` based connections". Return the file descriptor on success or `-1` on error (errno is set). The flags is reserved for future use and must be set to 0.
+- `uintr_ipi_fd(flags)`: use by a sender to share its uintr connection with another process.
+  - "uipi_fd that abstracts all the `uipi_index` based connections".
+  - Return the file descriptor on success or `-1` on error (errno is set).
+  - The flags is reserved for future use and must be set to 0.
   - ERRORS (errno):
     - ENOSYS  Underlying hardware doesn't have support for uintr.
     - EINVAL  flags is not 0.
@@ -134,10 +167,6 @@ X86 GPR intrinsics (`x86gprintrin.h`):
     - ENOMEM  The system is out of available memory to allocate uipi_fd.
 
 ### Syscall enum, handler and structure
-
-Status...
-
-TODO:
 
 The uintr handler definition has two argument a `frame` and `the vector`.
 
@@ -152,7 +181,7 @@ The `__uintr_frame` is a structure with three fields. The structure represent...
 2. `u64 rflags` is the register flags of ?? TODO:
 3. `u64 rsp` is the stack pointer of ?? TODO: (try to print `void* p = NULL; printf("%p", (void*)&p);`).
 
-- "The vector number pushed onto the stack to identify the source of the interrupt."
+- The vector is a number us to identify the source of uinter, is use like interruption events. The vector value is from 0 to 63 and is pushed onto the stack at uinter invoked.
 
 `UITT` (own two fields **UPID pointer** and **vector information**). // TODO: explain
 `UPID`
@@ -185,8 +214,8 @@ Tests:
   2. The receiver thread is blocked in kernel (not in `ring-3`), probably due to a syscall (write...). Uintr will be delivered when thread will be back in user-space (in `ring-3`).
   3. The thread in interruptible syscall. Possible to wait before delivery or use specific interrupt handler flags to just force delivery. "The receiver is blocked in the kernel and context switched out due to a blocking system call like read() or sleep(). The receiver can choose to be context switched in and the blocking syscall to be interrupted with the -EINTR error code similar to signal(). A specific interrupt handler flag needs to be passed to request such behavior."
 - One uintr handler by thread and not by process <!-- source: "Only  one interrupt  handler  can  be  registered by a particular thread within a process."https://raw.githubusercontent.com/intel/uintr-linux-kernel/uintr-next/tools/uintr/manpages/0_overview.txt -->
-- Each thread with a registered handler own an unique vector space of 64 vectors. This vector is a u64 number.
-  <!-- source: "2) Each thread that registers a handler has its own unique vector space of 64 vectors. The thread can then use uintr_vector_fd(2) to register a vector and create a user interrupt file descriptor - uvec_fd." -->
+- Each thread with a registered handler own an unique vector space of 64 vectors. This vector is a u64 number form 0 to 63. 63 has the highest priority and 0 the lowest.
+  <!-- source: 3_vector_fd.txt "Each thread has a private vector space of 64 vectors ranging from 0-63. Vector number 63 has the highest priority while vector number 0 has the lowest. If two or more interrupts are pending to be delivered then the interrupt with the higher vector number will be delivered first followed by the ones with lower vector numbers. Applications can choose appropriate vector numbers to prioritize certain interrupts over others." -->
 - `uintr_notify` is a function to send uintr from kernel to user. (can be connect to NIC driver to allow uintr through the network /!\ not kernel bypass).
 
 ## Constrains / limitations
@@ -237,9 +266,14 @@ Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 - test if user interruption send during UIF is lock (_clui) we receive interruption after unlock (_stui)
 - test where UIF is store (in thread memory? or in register?)
 - `__uintr_frame` represent the current handler call or the interrupted flow?
-- Status
-- flags (flags is not an identifier)
+- rsp is change by the compiler? or by the cpu? / vector number pushed by the compiler? or by the cpu?
 - UITT
 - UPID ![UPID](img/UPID_Format.png)
 - `uipi_index` vs `ipi_index`
 - potential issus for `long sys_uintr_unregister_sender(int uvec_fd, unsigned int flags);`. `uvec_fd` will be name `ipi_index`.
+
+Vector material representation :
+
+|     | number |
+| --- | ------ |
+|     | 6 bits |
