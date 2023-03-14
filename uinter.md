@@ -110,7 +110,7 @@ X86 GPR intrinsics (`x86gprintrin.h`):
   - ERRORS (errno):
     - ENOSYS  Underlying hardware doesn't have support for Uintr.
     - EINVAL  flags is not 0.
-    - EFAULT  handler address is not valid. FIXME: an error on the manual? replace address by vector?
+    - EFAULT  handler address is not valid. FIXME: an error on the manual?
     - EMFILE  The per-process limit on the number of open file descriptors has been reached.
     - ENFILE  The system-wide limit on the total number of open files has been reached.
     - ENODEV  Could not mount (internal) anonymous inode device.
@@ -290,7 +290,7 @@ Uintr support has added to GCC(11.1) and Binutils(2.36.1).
 - UPID ![UPID](img/UPID_Format.png)
 
 - issus for `long sys_uintr_unregister_sender(int uvec_fd, unsigned int flags);`. `uvec_fd` will be name `uipi_index`.
-- FIXME: an error on the manual? replace address by vector?
+- FIXME: an error on the manual?
 
 Vector material representation :
 
